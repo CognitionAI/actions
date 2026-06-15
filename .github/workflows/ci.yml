@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - run: npm run lint
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - run: npm run build
+      - name: Verify dist/index.js for Node.js actions
+        run: |
+          MISSING=0
+          for dir in */; do
+            if [ -f "$dir/action.yml" ] && grep -q 'using:.*node' "$dir/action.yml" && [ ! -f "$dir/dist/index.js" ]; then
+              echo "MISSING: $dir/dist/index.js"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          if [ "$MISSING" -gt 0 ]; then
+            echo "ERROR: $MISSING Node.js actions are missing dist/index.js"
+            exit 1
+          fi
+          echo "All Node.js actions have dist/index.js"
+
+  validate-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate action.yml files
+        run: |
+          ERRORS=0
+          for yml in */action.yml; do
+            dir=$(dirname "$yml")
+            USING=$(grep -oP 'using:\s*"\K[^"]+' "$yml" || true)
+            if [ "$USING" = "composite" ]; then
+              # Composite/alias actions — verify they have steps
+              if ! grep -q 'steps:' "$yml"; then
+                echo "ERROR: $yml is composite but has no steps"
+                ERRORS=$((ERRORS + 1))
+              fi
+            elif echo "$USING" | grep -q 'node'; then
+              # Node.js actions — verify main points to dist/index.js
+              if ! grep -q 'main:.*dist/index.js' "$yml"; then
+                echo "ERROR: $yml is node action but does not point to dist/index.js"
+                ERRORS=$((ERRORS + 1))
+              fi
+            else
+              echo "WARNING: $yml has unexpected runs.using: $USING"
+            fi
+          done
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "ERROR: $ERRORS validation errors found"
+            exit 1
+          fi
+          echo "All action.yml files valid"

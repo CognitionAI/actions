@@ -1,0 +1,33 @@
+name: "Set up AWS CLI with Devin OIDC"
+description: "Configure the AWS CLI to authenticate via AssumeRoleWithWebIdentity using Devin-issued OIDC tokens (exchanged with the devin-oidc CLI through a credential_process helper). Use in the initialize section of your blueprint."
+inputs:
+  role-arn:
+    description: "ARN of the IAM role to assume (its trust policy must trust the Devin OIDC provider)"
+    required: true
+  region:
+    description: "AWS region to set on the profile (e.g. 'us-east-1'). Leave empty to skip."
+    required: false
+    default: ""
+  profile:
+    description: "AWS profile name to configure"
+    required: false
+    default: "default"
+  audience:
+    description: "Audience for the exchanged OIDC token; must match the IdP's client ID (aud condition) in AWS IAM"
+    required: false
+    default: "sts.amazonaws.com"
+  subject-keys:
+    description: "Space-delimited claim names composing the token's sub claim (for IAM trust policy sub conditions)"
+    required: false
+    default: "org_id"
+  session-name:
+    description: "Role session name"
+    required: false
+    default: "devin"
+  duration-seconds:
+    description: "Duration of the assumed-role session in seconds"
+    required: false
+    default: "3600"
+runs:
+  using: "node20"
+  main: "dist/index.js"
