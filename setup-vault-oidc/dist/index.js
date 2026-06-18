@@ -25643,7 +25643,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 4098:
+/***/ 3151:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -25687,57 +25687,135 @@ const fs = __importStar(__nccwpck_require__(9896));
 const path = __importStar(__nccwpck_require__(6928));
 const drs_1 = __nccwpck_require__(1581);
 const devin_oidc_cli_1 = __nccwpck_require__(7881);
-function credentialHelperScript(inputs) {
-    // The exchanged OIDC token is short-lived (~1 minute), so a static
-    // web_identity_token_file would go stale. credential_process is re-run by
-    // the AWS CLI/SDKs whenever the assumed-role credentials expire, fetching a
-    // fresh token each time. AssumeRoleWithWebIdentity is unsigned, so the
-    // helper needs no pre-existing AWS credentials.
+/**
+ * Shell script installed as the Vault token helper. On `get`, it exchanges a
+ * Devin OIDC token for a Vault client token via the JWT auth method's login
+ * endpoint and caches the result. On `store` / `erase`, it maintains the
+ * cache so that `vault login` results are honoured.
+ */
+function tokenHelperScript(inputs) {
+    const nsHeader = inputs.vaultNamespace
+        ? `  -H "X-Vault-Namespace: ${inputs.vaultNamespace}" \\\n`
+        : "";
     return `#!/usr/bin/env bash
 set -euo pipefail
-token=$(devin-oidc token --audience "${inputs.audience}" --subject-keys "${inputs.subjectKeys}")
-exec env AWS_CONFIG_FILE=/dev/null aws sts assume-role-with-web-identity \\
-  --role-arn "${inputs.roleArn}" \\
-  --role-session-name "${inputs.sessionName}" \\
-  --web-identity-token "$token" \\
-  --duration-seconds ${inputs.durationSeconds} \\
-  --query 'Credentials.{Version: \`1\`, AccessKeyId: AccessKeyId, SecretAccessKey: SecretAccessKey, SessionToken: SessionToken, Expiration: Expiration}' \\
-  --output json
+
+# devin-oidc-vault-token-helper: Vault token helper that authenticates via
+# Devin OIDC -> Vault JWT auth. Re-invoked by the vault CLI on each command.
+
+VAULT_ADDR="${inputs.vaultAddr}"
+ROLE="${inputs.role}"
+AUTH_MOUNT="${inputs.authMount}"
+AUDIENCE="${inputs.audience}"
+SUBJECT_KEYS="${inputs.subjectKeys}"
+CACHE_FILE="\${HOME:-/home/ubuntu}/.vault-token"
+CACHE_TTL=300  # seconds — re-auth when cache is older than this
+
+die() { echo "devin-oidc-vault: $1" >&2; exit 1; }
+
+json_field() {
+  printf '%s' "$1" | grep -o "\\"$2\\"[[:space:]]*:[[:space:]]*\\"[^\\"]*\\"" | head -1 | sed 's/.*:[[:space:]]*"\\(.*\\)"/\\1/'
+}
+
+do_login() {
+  local jwt resp token errors
+  jwt=$(devin-oidc token --audience "$AUDIENCE" --subject-keys "$SUBJECT_KEYS") \\
+    || die "failed to obtain OIDC token"
+  resp=$(curl -sS --connect-timeout 5 --max-time 30 \\
+${nsHeader}    -X POST "$VAULT_ADDR/v1/auth/$AUTH_MOUNT/login" \\
+    -d "{\\"role\\":\\"$ROLE\\",\\"jwt\\":\\"$jwt\\"}") \\
+    || die "Vault login request failed"
+  token=$(json_field "$resp" client_token)
+  if [ -z "$token" ]; then
+    errors=$(printf '%s' "$resp" | grep -o '"errors"[[:space:]]*:[[:space:]]*\\[[^]]*\\]' | head -1 || true)
+    die "Vault login failed: \${errors:-$resp}"
+  fi
+  printf '%s' "$token" > "$CACHE_FILE"
+  chmod 600 "$CACHE_FILE"
+  printf '%s' "$token"
+}
+
+case "\${1:-}" in
+  get)
+    if [ -f "$CACHE_FILE" ]; then
+      age=$(( $(date +%s) - $(stat -c %Y "$CACHE_FILE" 2>/dev/null || echo 0) ))
+      if [ "$age" -lt "$CACHE_TTL" ]; then
+        cat "$CACHE_FILE"
+        exit 0
+      fi
+    fi
+    do_login
+    ;;
+  store)
+    read -r token || true
+    if [ -n "\${token:-}" ]; then
+      printf '%s' "$token" > "$CACHE_FILE"
+      chmod 600 "$CACHE_FILE"
+    fi
+    ;;
+  erase)
+    rm -f "$CACHE_FILE"
+    ;;
+  *)
+    echo "Usage: $0 {get|store|erase}" >&2
+    exit 1
+    ;;
+esac
 `;
 }
-function appendProfile(profile, helperPath, region) {
-    const header = profile === "default" ? "[default]" : `[profile ${profile}]`;
-    const configPath = path.join(process.env.HOME || "/home/ubuntu", ".aws", "config");
-    let config = "";
-    if (fs.existsSync(configPath))
-        config = fs.readFileSync(configPath, "utf8");
-    if (config.includes(header)) {
-        core.info(`AWS profile ${header} already exists in ${configPath}; leaving config unchanged`);
+function writeVaultConfig(helperPath) {
+    const homeDir = process.env.HOME || "/home/ubuntu";
+    const configPath = path.join(homeDir, ".vault");
+    // If ~/.vault already exists as a directory, remove it first; the Vault CLI
+    // expects a plain file here for the token helper configuration.
+    if (fs.existsSync(configPath) && fs.statSync(configPath).isDirectory()) {
+        core.warning(`${configPath} exists as a directory; replacing with config file`);
+        fs.rmSync(configPath, { recursive: true });
+    }
+    fs.writeFileSync(configPath, `token_helper = "${helperPath}"\n`);
+    core.info(`Configured Vault token helper in ${configPath}`);
+}
+async function installVaultCli(version) {
+    if (await (0, drs_1.commandExists)("vault")) {
+        const current = await (0, drs_1.run)("vault version", { silent: true });
+        core.info(`Vault CLI already installed: ${current}`);
         return;
     }
-    let section = `${header}\ncredential_process = ${helperPath}\n`;
-    if (region)
-        section += `region = ${region}\n`;
-    if (config && !config.endsWith("\n"))
-        config += "\n";
-    fs.mkdirSync(path.dirname(configPath), { recursive: true });
-    fs.writeFileSync(configPath, config + section);
-    core.info(`Configured AWS profile ${header} in ${configPath}`);
+    const arch = await (0, drs_1.getArch)();
+    const goArch = arch === "arm64" ? "arm64" : "amd64";
+    const url = `https://releases.hashicorp.com/vault/${version}/vault_${version}_linux_${goArch}.zip`;
+    core.info(`Installing Vault CLI ${version} from ${url}`);
+    await (0, drs_1.run)(`curl -fsSL "${url}" -o /tmp/vault.zip`);
+    await (0, drs_1.run)("sudo unzip -oq /tmp/vault.zip -d /usr/local/bin");
+    await (0, drs_1.run)("sudo chmod 755 /usr/local/bin/vault");
+    await (0, drs_1.run)("rm -f /tmp/vault.zip");
+    const installed = await (0, drs_1.run)("vault version", { silent: true });
+    core.info(`Installed: ${installed}`);
 }
 async function main() {
     try {
-        const roleArn = core.getInput("role-arn", { required: true });
-        const region = core.getInput("region");
-        const profile = core.getInput("profile") || "default";
-        const audience = core.getInput("audience") || "sts.amazonaws.com";
+        const vaultAddr = core.getInput("vault-addr", { required: true });
+        const role = core.getInput("role", { required: true });
+        const authMount = core.getInput("auth-mount") || "jwt";
+        const audience = core.getInput("audience") || vaultAddr;
         const subjectKeys = core.getInput("subject-keys") || "org_id";
-        const sessionName = core.getInput("session-name") || "devin";
-        const durationSeconds = core.getInput("duration-seconds") || "3600";
+        const vaultNamespace = core.getInput("vault-namespace");
+        const shouldInstallVault = core.getInput("install-vault") !== "false";
+        const vaultVersion = core.getInput("vault-version") || "1.17.2";
         await (0, devin_oidc_cli_1.installDevinOidcCli)();
-        const helperPath = `/usr/local/bin/devin-oidc-aws-credentials-${profile}`;
-        await (0, drs_1.writeFileWithSudo)(helperPath, credentialHelperScript({ roleArn, audience, subjectKeys, sessionName, durationSeconds }));
+        if (shouldInstallVault) {
+            await installVaultCli(vaultVersion);
+        }
+        const helperPath = "/usr/local/bin/devin-oidc-vault-token-helper";
+        await (0, drs_1.writeFileWithSudo)(helperPath, tokenHelperScript({ vaultAddr, role, authMount, audience, subjectKeys, vaultNamespace }));
         await (0, drs_1.run)(`sudo chmod 755 "${helperPath}"`);
-        appendProfile(profile, helperPath, region);
+        writeVaultConfig(helperPath);
+        (0, drs_1.exportVariable)("VAULT_ADDR", vaultAddr);
+        if (vaultNamespace) {
+            (0, drs_1.exportVariable)("VAULT_NAMESPACE", vaultNamespace);
+        }
+        core.info("HashiCorp Vault OIDC authentication configured. " +
+            "The vault CLI will automatically obtain tokens via Devin OIDC.");
     }
     catch (error) {
         core.setFailed(error instanceof Error ? error.message : String(error));
@@ -27997,7 +28075,7 @@ module.exports = parseParams
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(4098);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(3151);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
