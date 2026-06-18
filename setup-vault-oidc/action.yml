@@ -1,0 +1,36 @@
+name: "Set up HashiCorp Vault with Devin OIDC"
+description: "Configure the Vault CLI to authenticate via JWT/OIDC auth using Devin-issued OIDC tokens (exchanged with the devin-oidc CLI through a token helper). Use in the initialize section of your blueprint."
+inputs:
+  vault-addr:
+    description: "Vault server address (e.g. 'https://vault.corp.com:8200')"
+    required: true
+  role:
+    description: "Vault role name configured in the JWT/OIDC auth method (its bound_audiences must include the audience claim)"
+    required: true
+  auth-mount:
+    description: "Mount path of the JWT/OIDC auth method in Vault"
+    required: false
+    default: "jwt"
+  audience:
+    description: "Audience for the exchanged OIDC token; must match bound_audiences in the Vault role. Defaults to vault-addr."
+    required: false
+    default: ""
+  subject-keys:
+    description: "Space-delimited claim names composing the token's sub claim (for Vault bound_subject conditions)"
+    required: false
+    default: "org_id"
+  vault-namespace:
+    description: "Vault enterprise namespace (leave empty for non-enterprise or root namespace)"
+    required: false
+    default: ""
+  install-vault:
+    description: "Whether to install the Vault CLI (set to 'false' if already installed)"
+    required: false
+    default: "true"
+  vault-version:
+    description: "Vault CLI version to install (ignored if install-vault is 'false')"
+    required: false
+    default: "1.17.2"
+runs:
+  using: "node20"
+  main: "dist/index.js"
