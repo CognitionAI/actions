@@ -38,8 +38,4 @@ devin-oidc print-general-token
 | `--subject-keys` | Space-delimited claims used to form `sub`; defaults to `org_id` |
 | `--exchange-url` | Override the token exchange endpoint |
 
-The `DEVIN_OIDC_TOKEN_FILE` environment variable overrides the general token path, which defaults to `/opt/.devin/oidc_token`. `DEVIN_OIDC_EXCHANGE_URL` provides a default exchange endpoint override.
-
-Without an override, the CLI derives `{iss}/api/oidc/token` from the general token. If that endpoint indicates the tenant git proxy is required, the CLI retries through the corresponding git-manager endpoint.
-
 Your target service must trust Devin as an OIDC identity provider and accept the requested audience.
