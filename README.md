@@ -35,8 +35,6 @@ devin-oidc token \
   --subject-keys "org_id repository_name"
 ```
 
-The CLI reads the session's general OIDC token from `/opt/.devin/oidc_token`, derives the exchange endpoint from the token's `iss` claim, and exchanges it for a short-lived audience-scoped token. For dedicated tenants that require git proxy attestation, it falls back to the tenant git proxy when the direct exchange endpoint requests it.
-
-Your service must be configured to trust Devin as an OIDC identity provider and accept the requested audience. For your Devin OIDC provider URL and organization ID, contact your Devin administrator or Cognition support.
+Your service must be configured to trust Devin as an OIDC identity provider and accept the requested audience.
 
 See the [`setup-devin-oidc` action documentation](./setup-devin-oidc/README.md) for command options and configuration details.

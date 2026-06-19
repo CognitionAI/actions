@@ -51,4 +51,4 @@ vault write auth/jwt/role/devin-sessions \
   policies="devin"
 ```
 
-Adjust the issuer, audience, subject, and policies for your deployment. If the auth method is mounted somewhere other than `jwt`, set `auth-mount`. For your Devin OIDC provider URL and organization ID, contact your Devin administrator or Cognition support.
+Adjust the issuer, audience, subject, and policies for your deployment. If the auth method is mounted somewhere other than `jwt`, set `auth-mount`.
