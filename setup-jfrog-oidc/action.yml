@@ -1,0 +1,32 @@
+name: "Set up JFrog CLI with Devin OIDC"
+description: "Configure the JFrog CLI to authenticate via OIDC token exchange using Devin-issued OIDC tokens. Installs a jf wrapper that transparently refreshes credentials on 401. Use in the initialize section of your blueprint."
+inputs:
+  jfrog-url:
+    description: "JFrog Platform URL (e.g. 'https://mycompany.jfrog.io')"
+    required: true
+  provider-name:
+    description: "OIDC provider name configured in JFrog Platform (must match the integration name)"
+    required: true
+  audience:
+    description: "Audience for the exchanged OIDC token; must match the JFrog OIDC integration's audience. Defaults to jfrog-url."
+    required: false
+    default: ""
+  subject-keys:
+    description: "Space-delimited claim names composing the token's sub claim"
+    required: false
+    default: "org_id"
+  server-id:
+    description: "JFrog CLI server configuration ID"
+    required: false
+    default: "default"
+  install-jfrog-cli:
+    description: "Whether to install the JFrog CLI (set to 'false' if already installed)"
+    required: false
+    default: "true"
+  jfrog-cli-version:
+    description: "JFrog CLI version to install (ignored if install-jfrog-cli is 'false')"
+    required: false
+    default: "2.72.2"
+runs:
+  using: "node20"
+  main: "dist/index.js"

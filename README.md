@@ -11,6 +11,7 @@ These actions are intended for the `initialize` section of a Devin environment b
 | [`setup-devin-oidc`](./setup-devin-oidc/README.md) | Install the base `devin-oidc` CLI for OIDC token exchange |
 | [`setup-aws-oidc`](./setup-aws-oidc/README.md) | Configure AWS CLI and SDK authentication with Devin OIDC |
 | [`setup-vault-oidc`](./setup-vault-oidc/README.md) | Configure HashiCorp Vault CLI authentication with Devin OIDC |
+| [`setup-jfrog-oidc`](./setup-jfrog-oidc/README.md) | Configure JFrog CLI authentication with Devin OIDC |
 
 ## `setup-devin-oidc`
 
