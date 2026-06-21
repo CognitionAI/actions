@@ -83,7 +83,8 @@ fi
 if grep -qiE '401|403|unauthorized|forbidden|token.*expir|credentials.*invalid' "$stdout_file" "$stderr_file" 2>/dev/null; then
   # Attempt token refresh
   if /usr/local/bin/devin-oidc-jfrog-refresh >/dev/null 2>&1; then
-    # Retry with fresh credentials — exec preserves fd separation naturally
+    # Clean up temp files before exec (exec bypasses EXIT trap)
+    rm -f "$stdout_file" "$stderr_file"
     exec "$REAL_JF" "$@"
   fi
 fi
