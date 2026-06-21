@@ -141,7 +141,7 @@ async function main(): Promise<void> {
       await installJfrogCli(cliVersion);
     } else {
       // Move existing jf to .jf-real if not already done
-      if (await commandExists("jf")) {
+      if (!(await commandExists(".jf-real")) && (await commandExists("jf"))) {
         const jfPath = (await run("which jf", { silent: true })).trim();
         if (jfPath && jfPath !== "/usr/local/bin/.jf-real") {
           await run(`sudo mv "${jfPath}" /usr/local/bin/.jf-real`);
@@ -161,7 +161,7 @@ async function main(): Promise<void> {
     await run("sudo chmod 755 /usr/local/bin/jf");
 
     // 5. Initial token exchange (non-fatal — wrapper handles refresh at runtime)
-    const { exitCode: refreshExit, stdout: refreshOut } = await tryRun("/usr/local/bin/devin-oidc-jfrog-refresh");
+    const { exitCode: refreshExit, stdout: refreshOut } = await tryRun("/usr/local/bin/devin-oidc-jfrog-refresh", { silent: true });
     if (refreshExit !== 0) {
       core.warning("Initial token exchange failed — auth will be attempted on first jf command via the wrapper");
     } else if (!refreshOut.trim()) {

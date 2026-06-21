@@ -25812,7 +25812,7 @@ async function main() {
         }
         else {
             // Move existing jf to .jf-real if not already done
-            if (await (0, drs_1.commandExists)("jf")) {
+            if (!(await (0, drs_1.commandExists)(".jf-real")) && (await (0, drs_1.commandExists)("jf"))) {
                 const jfPath = (await (0, drs_1.run)("which jf", { silent: true })).trim();
                 if (jfPath && jfPath !== "/usr/local/bin/.jf-real") {
                     await (0, drs_1.run)(`sudo mv "${jfPath}" /usr/local/bin/.jf-real`);
@@ -25826,7 +25826,7 @@ async function main() {
         await (0, drs_1.writeFileWithSudo)("/usr/local/bin/jf", wrapperScript());
         await (0, drs_1.run)("sudo chmod 755 /usr/local/bin/jf");
         // 5. Initial token exchange (non-fatal — wrapper handles refresh at runtime)
-        const { exitCode: refreshExit, stdout: refreshOut } = await (0, drs_1.tryRun)("/usr/local/bin/devin-oidc-jfrog-refresh");
+        const { exitCode: refreshExit, stdout: refreshOut } = await (0, drs_1.tryRun)("/usr/local/bin/devin-oidc-jfrog-refresh", { silent: true });
         if (refreshExit !== 0) {
             core.warning("Initial token exchange failed — auth will be attempted on first jf command via the wrapper");
         }
