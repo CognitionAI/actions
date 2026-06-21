@@ -25740,26 +25740,33 @@ set -uo pipefail
 
 REAL_JF=/usr/local/bin/.jf-real
 
-# Run the real jf, capturing combined output
-output=$("$REAL_JF" "$@" 2>&1)
+# Capture stdout and stderr separately to preserve fd separation
+stdout_file=$(mktemp)
+stderr_file=$(mktemp)
+cleanup() { rm -f "$stdout_file" "$stderr_file"; }
+trap cleanup EXIT
+
+"$REAL_JF" "$@" >"$stdout_file" 2>"$stderr_file"
 rc=$?
 
 if [ $rc -eq 0 ]; then
-  printf '%s\\n' "$output"
+  cat "$stdout_file"
+  cat "$stderr_file" >&2
   exit 0
 fi
 
-# Check if failure is auth-related
-if printf '%s' "$output" | grep -qiE '401|403|unauthorized|forbidden|token.*expir|credentials.*invalid'; then
+# Check if failure is auth-related (check both stdout and stderr)
+if grep -qiE '401|403|unauthorized|forbidden|token.*expir|credentials.*invalid' "$stdout_file" "$stderr_file" 2>/dev/null; then
   # Attempt token refresh
   if /usr/local/bin/devin-oidc-jfrog-refresh >/dev/null 2>&1; then
-    # Retry with fresh credentials
+    # Retry with fresh credentials — exec preserves fd separation naturally
     exec "$REAL_JF" "$@"
   fi
 fi
 
-# Not auth-related or refresh failed — return original output and exit code
-printf '%s\\n' "$output"
+# Not auth-related or refresh failed — replay original output to correct fds
+cat "$stdout_file"
+cat "$stderr_file" >&2
 exit $rc
 `;
 }
@@ -25818,9 +25825,12 @@ async function main() {
         // 4. Install jf wrapper
         await (0, drs_1.writeFileWithSudo)("/usr/local/bin/jf", wrapperScript());
         await (0, drs_1.run)("sudo chmod 755 /usr/local/bin/jf");
-        // 5. Initial token exchange
-        const token = (await (0, drs_1.run)("/usr/local/bin/devin-oidc-jfrog-refresh")).trim();
-        if (!token) {
+        // 5. Initial token exchange (non-fatal — wrapper handles refresh at runtime)
+        const { exitCode: refreshExit, stdout: refreshOut } = await (0, drs_1.tryRun)("/usr/local/bin/devin-oidc-jfrog-refresh");
+        if (refreshExit !== 0) {
+            core.warning("Initial token exchange failed — auth will be attempted on first jf command via the wrapper");
+        }
+        else if (!refreshOut.trim()) {
             core.warning("Initial token exchange returned empty — auth may not work until the session has a valid OIDC token");
         }
         // 6. Export JFROG_URL
