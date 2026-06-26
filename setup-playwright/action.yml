@@ -1,0 +1,11 @@
+name: "Setup Playwright"
+description: "Install Playwright and its browser dependencies. Use in the initialize section of your blueprint."
+category: "Advanced patterns"
+inputs:
+  browsers:
+    description: "Browsers to install (e.g. 'chromium', 'chromium firefox'). Defaults to 'chromium'."
+    required: false
+    default: "chromium"
+runs:
+  using: "node20"
+  main: "dist/index.js"

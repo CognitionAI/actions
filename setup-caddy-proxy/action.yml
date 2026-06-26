@@ -1,0 +1,14 @@
+name: "Setup Caddy reverse proxy"
+description: "Install Caddy and configure it as a local HTTPS reverse proxy for development services. Use in the initialize section of your blueprint."
+category: "Advanced patterns"
+inputs:
+  hostnames:
+    description: "Comma-separated hostname:port mappings (e.g. 'app.local:3000,api.local:8080')"
+    required: true
+  install-nss-tools:
+    description: "Install nss-tools for Firefox/Chrome cert trust. Defaults to 'true'."
+    required: false
+    default: "true"
+runs:
+  using: "node20"
+  main: "dist/index.js"

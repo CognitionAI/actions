@@ -1,5 +1,6 @@
 name: "Set up devin-oidc CLI"
 description: "Install the devin-oidc CLI, which exchanges the Devin session's general OIDC token for short-lived audience-scoped tokens (RFC 8693). Use in the initialize section of your blueprint."
+category: "Workload identity (Devin OIDC)"
 runs:
   using: "node20"
   main: "dist/index.js"

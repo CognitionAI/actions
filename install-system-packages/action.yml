@@ -1,0 +1,10 @@
+name: "Install system packages"
+description: "Install apt packages on Devin's Ubuntu-based environment. Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  packages:
+    description: "Space-separated list of apt packages to install (e.g. 'jq tree ripgrep')"
+    required: true
+runs:
+  using: "node20"
+  main: "dist/index.js"

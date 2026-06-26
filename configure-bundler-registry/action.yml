@@ -1,0 +1,18 @@
+name: "Configure Bundler private registry"
+description: "Configure Bundler to use a private gem source. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  source-url:
+    description: "Gem source URL (e.g. 'https://gems.corp.com/')"
+    required: true
+  username:
+    description: "Username for authentication. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+  password:
+    description: "Password or API key. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

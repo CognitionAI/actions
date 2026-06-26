@@ -1,0 +1,15 @@
+name: "Configure locale"
+description: "Set the system locale and timezone. Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  locale:
+    description: "Locale to set (e.g. 'en_US.UTF-8', 'ja_JP.UTF-8'). Defaults to 'en_US.UTF-8'."
+    required: false
+    default: "en_US.UTF-8"
+  timezone:
+    description: "Timezone to set (e.g. 'America/New_York', 'Asia/Tokyo'). Leave empty to skip."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

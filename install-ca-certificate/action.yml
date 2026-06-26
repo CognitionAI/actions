@@ -1,0 +1,26 @@
+name: "Install CA certificate"
+description: "Install corporate CA certificates into the system trust store and configure tools to trust them. Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  certificate-b64:
+    description: "Base64-encoded PEM certificate. Generate with: cat cert.crt | base64 -w0. Use $SECRET_NAME syntax in blueprints."
+    required: true
+  certificate-name:
+    description: "Filename for the certificate (e.g. 'corp-root-ca.crt')"
+    required: false
+    default: "corp-root-ca.crt"
+  extra-certificate-b64:
+    description: "Optional second base64-encoded certificate (e.g. intermediate CA)"
+    required: false
+    default: ""
+  extra-certificate-name:
+    description: "Filename for the second certificate (e.g. 'corp-intermediate-ca.crt')"
+    required: false
+    default: "corp-intermediate-ca.crt"
+  configure-node:
+    description: "Set NODE_EXTRA_CA_CERTS for Node.js. Defaults to 'true'."
+    required: false
+    default: "true"
+runs:
+  using: "node20"
+  main: "dist/index.js"

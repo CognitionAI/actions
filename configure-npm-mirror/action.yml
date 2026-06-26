@@ -1,0 +1,18 @@
+name: "Configure npm registry mirror"
+description: "Replace the default npm registry with a corporate mirror. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  registry-url:
+    description: "Mirror registry URL (e.g. 'https://nexus.corp.com/repository/npm-proxy/')"
+    required: true
+  auth-token:
+    description: "Authentication token for the mirror. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+  strict-ssl:
+    description: "Enforce SSL certificate validation. Set to 'false' for self-signed certs."
+    required: false
+    default: "true"
+runs:
+  using: "node20"
+  main: "dist/index.js"

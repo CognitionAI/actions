@@ -1,0 +1,26 @@
+name: "Setup Java with Gradle"
+description: "Install a JDK via actions/setup-java and Gradle via gradle/actions/setup-gradle. Thin wrapper for consistent DRS naming."
+category: "Language & runtime setup"
+inputs:
+  java-version:
+    description: "JDK version to install (e.g. '17', '21'). Defaults to '17'."
+    required: false
+    default: "17"
+  distribution:
+    description: "JDK distribution (e.g. 'temurin', 'corretto', 'zulu'). Defaults to 'temurin'."
+    required: false
+    default: "temurin"
+  gradle-version:
+    description: "Gradle version to install (e.g. '8.12'). Defaults to 'wrapper' (use project's Gradle Wrapper)."
+    required: false
+    default: "wrapper"
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-java@v4
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: ${{ inputs.distribution }}
+    - uses: gradle/actions/setup-gradle@v4
+      with:
+        gradle-version: ${{ inputs.gradle-version }}

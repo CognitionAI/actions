@@ -1,0 +1,10 @@
+name: "Configure apt mirror"
+description: "Replace the default Ubuntu apt mirror with a corporate mirror. Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  mirror-url:
+    description: "Mirror URL (e.g. 'https://nexus.corp.com/repository/ubuntu-proxy/')"
+    required: true
+runs:
+  using: "node20"
+  main: "dist/index.js"

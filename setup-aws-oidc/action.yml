@@ -1,5 +1,6 @@
 name: "Set up AWS CLI with Devin OIDC"
 description: "Configure the AWS CLI to authenticate via AssumeRoleWithWebIdentity using Devin-issued OIDC tokens (exchanged with the devin-oidc CLI through a credential_process helper). Use in the initialize section of your blueprint."
+category: "Workload identity (Devin OIDC)"
 inputs:
   role-arn:
     description: "ARN of the IAM role to assume (its trust policy must trust the Devin OIDC provider)"

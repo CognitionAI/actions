@@ -1,0 +1,25 @@
+name: "Configure NuGet private registry"
+description: "Add a NuGet package source with credentials. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  source-name:
+    description: "Name for the NuGet source (e.g. 'corp-nuget')"
+    required: true
+  source-url:
+    description: "NuGet feed URL"
+    required: true
+  username:
+    description: "Username for authentication. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+  password:
+    description: "Password or API key. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+  config-path:
+    description: "Path to NuGet.Config file. Defaults to ~/.nuget/NuGet/NuGet.Config."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

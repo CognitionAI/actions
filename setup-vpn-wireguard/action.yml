@@ -1,0 +1,10 @@
+name: "Setup WireGuard VPN"
+description: "Install and start a WireGuard VPN connection. Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  config-b64:
+    description: "Base64-encoded WireGuard config file. Use $SECRET_NAME syntax in blueprints."
+    required: true
+runs:
+  using: "node20"
+  main: "dist/index.js"

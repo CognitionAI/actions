@@ -1,0 +1,17 @@
+name: "Configure npm scoped registry"
+description: "Point an npm @scope to a private registry. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  scope:
+    description: "npm scope (e.g. '@mycompany'). Must start with @."
+    required: true
+  registry-url:
+    description: "Registry URL (e.g. 'https://npm.pkg.github.com')"
+    required: true
+  auth-token:
+    description: "Authentication token for the registry. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

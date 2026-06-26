@@ -1,0 +1,14 @@
+name: "Setup Node.js with npm"
+description: "Install Node.js via the official actions/setup-node action. Thin wrapper for consistent DRS naming."
+category: "Language & runtime setup"
+inputs:
+  node-version:
+    description: "Node.js version to install (e.g. '20', '22'). Defaults to '20'."
+    required: false
+    default: "20"
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}

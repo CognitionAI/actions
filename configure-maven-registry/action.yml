@@ -1,0 +1,21 @@
+name: "Configure Maven private registry"
+description: "Configure Maven settings.xml with a private repository and credentials. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  server-id:
+    description: "Server ID that matches the repository ID in pom.xml (e.g. 'corp-maven')"
+    required: true
+  repo-url:
+    description: "Repository URL (e.g. 'https://nexus.corp.com/repository/maven-releases/')"
+    required: true
+  username:
+    description: "Username for authentication. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+  password:
+    description: "Password or token. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

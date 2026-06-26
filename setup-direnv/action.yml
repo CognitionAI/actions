@@ -1,0 +1,11 @@
+name: "Setup direnv"
+description: "Install direnv and create a project .envrc file. Use in the initialize section of your blueprint."
+category: "Advanced patterns"
+inputs:
+  envrc-content:
+    description: "Content for the .envrc file (e.g. 'export DB_HOST=localhost\\nexport API_KEY=test')"
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

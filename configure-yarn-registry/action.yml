@@ -1,0 +1,22 @@
+name: "Configure Yarn registry"
+description: "Configure Yarn (v1 or v2+) to use a private registry. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  registry-url:
+    description: "Registry URL (e.g. 'https://nexus.corp.com/repository/npm-proxy/')"
+    required: true
+  auth-token:
+    description: "Authentication token. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+  scope:
+    description: "Optional npm scope (e.g. '@mycompany'). Leave empty for default registry."
+    required: false
+    default: ""
+  yarn-version:
+    description: "Yarn version: '1' for classic, '2' for Berry. Defaults to '1'."
+    required: false
+    default: "1"
+runs:
+  using: "node20"
+  main: "dist/index.js"

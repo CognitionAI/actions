@@ -1,0 +1,19 @@
+name: "Configure DNS"
+description: "Add custom entries to /etc/hosts and optionally configure DNS resolvers. Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  hosts-entries:
+    description: "Newline-separated host entries (e.g. '10.0.0.1 registry.corp.com\\n10.0.0.2 git.corp.com')"
+    required: false
+    default: ""
+  nameservers:
+    description: "Comma-separated DNS nameservers (e.g. '10.0.0.53,10.0.0.54')"
+    required: false
+    default: ""
+  search-domains:
+    description: "Space-separated DNS search domains (e.g. 'corp.com internal.corp.com')"
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

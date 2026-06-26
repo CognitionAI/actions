@@ -1,0 +1,25 @@
+name: "Configure HTTP/HTTPS proxy"
+description: "Route network traffic through a corporate proxy. Configures system env vars, and optionally git and npm. Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  http-proxy:
+    description: "HTTP proxy URL (e.g. 'http://proxy.corp.example.com:8080')"
+    required: true
+  https-proxy:
+    description: "HTTPS proxy URL (e.g. 'http://proxy.corp.example.com:8080')"
+    required: true
+  no-proxy:
+    description: "Comma-separated hosts to bypass proxy"
+    required: false
+    default: "localhost,127.0.0.1"
+  configure-git:
+    description: "Configure git to use the proxy. Defaults to 'true'."
+    required: false
+    default: "true"
+  configure-npm:
+    description: "Configure npm to use the proxy. Defaults to 'false'. Set to 'true' only if npm is installed."
+    required: false
+    default: "false"
+runs:
+  using: "node20"
+  main: "dist/index.js"

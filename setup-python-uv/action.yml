@@ -1,0 +1,14 @@
+name: "Setup Python with uv"
+description: "Install the uv package manager via the official astral-sh/setup-uv action. Thin wrapper for consistent DRS naming."
+category: "Language & runtime setup"
+inputs:
+  uv-version:
+    description: "uv version to install (e.g. '0.5.1'). Leave empty for latest."
+    required: false
+    default: ""
+runs:
+  using: "composite"
+  steps:
+    - uses: astral-sh/setup-uv@v5
+      with:
+        version: ${{ inputs.uv-version }}

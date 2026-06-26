@@ -1,5 +1,6 @@
 name: "Set up HashiCorp Vault with Devin OIDC"
 description: "Configure the Vault CLI to authenticate via JWT/OIDC auth using Devin-issued OIDC tokens (exchanged with the devin-oidc CLI through a token helper). Use in the initialize section of your blueprint."
+category: "Workload identity (Devin OIDC)"
 inputs:
   vault-addr:
     description: "Vault server address (e.g. 'https://vault.corp.com:8200')"

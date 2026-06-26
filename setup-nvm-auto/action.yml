@@ -1,0 +1,11 @@
+name: "Setup nvm with auto-switching"
+description: "Configure nvm to automatically switch Node.js versions when entering directories with .nvmrc files. Use in the initialize section of your blueprint."
+category: "Advanced patterns"
+inputs:
+  default-version:
+    description: "Default Node.js version (e.g. '20'). Defaults to '20'."
+    required: false
+    default: "20"
+runs:
+  using: "node20"
+  main: "dist/index.js"

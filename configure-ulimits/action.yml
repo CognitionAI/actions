@@ -1,0 +1,15 @@
+name: "Configure ulimits"
+description: "Set system resource limits (nofile, nproc, etc.). Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  nofile:
+    description: "Max open files limit. Leave empty to skip."
+    required: false
+    default: ""
+  nproc:
+    description: "Max processes limit. Leave empty to skip."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

@@ -1,0 +1,22 @@
+name: "Setup OpenVPN"
+description: "Install and start an OpenVPN client connection. Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  config-b64:
+    description: "Base64-encoded OpenVPN config file (.ovpn). Use $SECRET_NAME syntax in blueprints."
+    required: true
+  auth-user:
+    description: "VPN username (if config uses auth-user-pass). Use $SECRET_NAME syntax."
+    required: false
+    default: ""
+  auth-pass:
+    description: "VPN password. Use $SECRET_NAME syntax."
+    required: false
+    default: ""
+  wait-seconds:
+    description: "Seconds to wait for VPN to connect. Defaults to '10'."
+    required: false
+    default: "10"
+runs:
+  using: "node20"
+  main: "dist/index.js"

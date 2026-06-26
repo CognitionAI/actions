@@ -1,0 +1,14 @@
+name: "Configure pnpm registry"
+description: "Configure pnpm to use a private registry. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  registry-url:
+    description: "Registry URL (e.g. 'https://nexus.corp.com/repository/npm-proxy/')"
+    required: true
+  auth-token:
+    description: "Authentication token. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

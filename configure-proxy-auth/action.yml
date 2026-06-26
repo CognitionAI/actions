@@ -1,0 +1,24 @@
+name: "Configure authenticated proxy"
+description: "Route network traffic through an authenticated corporate proxy. Embeds credentials in proxy URLs. Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  proxy-host:
+    description: "Proxy hostname and port (e.g. 'proxy.corp.com:8080')"
+    required: true
+  proxy-username:
+    description: "Proxy username. Use $SECRET_NAME syntax in blueprints."
+    required: true
+  proxy-password:
+    description: "Proxy password. Use $SECRET_NAME syntax in blueprints."
+    required: true
+  proxy-scheme:
+    description: "Protocol scheme: 'http' or 'https'. Defaults to 'http'."
+    required: false
+    default: "http"
+  no-proxy:
+    description: "Comma-separated hosts to bypass proxy"
+    required: false
+    default: "localhost,127.0.0.1"
+runs:
+  using: "node20"
+  main: "dist/index.js"

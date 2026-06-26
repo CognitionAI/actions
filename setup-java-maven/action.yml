@@ -1,0 +1,26 @@
+name: "Setup Java with Maven"
+description: "Install a JDK via actions/setup-java and Maven via stCarolas/setup-maven. Thin wrapper for consistent DRS naming."
+category: "Language & runtime setup"
+inputs:
+  java-version:
+    description: "JDK version to install (e.g. '17', '21'). Defaults to '17'."
+    required: false
+    default: "17"
+  distribution:
+    description: "JDK distribution (e.g. 'temurin', 'corretto', 'zulu'). Defaults to 'temurin'."
+    required: false
+    default: "temurin"
+  maven-version:
+    description: "Maven version to install (e.g. '3.9.9'). Defaults to '3.9.9'."
+    required: false
+    default: "3.9.9"
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-java@v4
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: ${{ inputs.distribution }}
+    - uses: stCarolas/setup-maven@v5
+      with:
+        maven-version: ${{ inputs.maven-version }}

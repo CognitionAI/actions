@@ -1,0 +1,21 @@
+name: "Setup Node.js with pnpm"
+description: "Install Node.js and pnpm via official actions. Thin wrapper for consistent DRS naming."
+category: "Language & runtime setup"
+inputs:
+  node-version:
+    description: "Node.js version to install (e.g. '20'). Defaults to '20'."
+    required: false
+    default: "20"
+  pnpm-version:
+    description: "pnpm version to install. Defaults to latest."
+    required: false
+    default: "latest"
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+    - uses: pnpm/action-setup@v4
+      with:
+        version: ${{ inputs.pnpm-version }}

@@ -1,0 +1,18 @@
+name: "Configure GPG commit signing"
+description: "Import a GPG key and configure git to sign commits. Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  gpg-private-key-b64:
+    description: "Base64-encoded GPG private key. Use $SECRET_NAME syntax in blueprints."
+    required: true
+  key-id:
+    description: "GPG key ID to use for signing. If empty, uses the first imported key."
+    required: false
+    default: ""
+  git-user-email:
+    description: "Email to associate with git commits. Leave empty to skip git config."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

@@ -1,0 +1,25 @@
+name: "Configure Poetry private registry"
+description: "Add a private repository to Poetry. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  repo-name:
+    description: "Name for the repository in Poetry config (e.g. 'corp-pypi')"
+    required: true
+  repo-url:
+    description: "Repository URL (e.g. 'https://nexus.corp.com/repository/pypi-hosted/')"
+    required: true
+  username:
+    description: "Username for authentication. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+  password:
+    description: "Password or token. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+  set-as-default:
+    description: "Set this as the default PyPI source. Defaults to 'false'."
+    required: false
+    default: "false"
+runs:
+  using: "node20"
+  main: "dist/index.js"

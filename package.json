@@ -1,14 +1,15 @@
 {
   "private": true,
   "name": "cognition-actions",
-  "description": "Reusable actions for authenticating Devin sessions with OIDC",
+  "description": "Reusable actions for Devin's Declarative Repository Setup (DRS)",
   "scripts": {
     "build": "node scripts/build.mjs",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "@actions/exec": "^1.1.1"
+    "@actions/exec": "^1.1.1",
+    "@actions/io": "^1.1.3"
   },
   "devDependencies": {
     "@types/node": "^20.17.0",

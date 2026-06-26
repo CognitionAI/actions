@@ -1,0 +1,26 @@
+name: "Configure SSH keys"
+description: "Install SSH private keys and configure known hosts. Use in the initialize section of your blueprint."
+category: "Enterprise infrastructure"
+inputs:
+  private-key-b64:
+    description: "Base64-encoded SSH private key. Use $SECRET_NAME syntax in blueprints."
+    required: true
+  known-hosts:
+    description: "Known hosts entries (one per line). Leave empty to disable strict host checking."
+    required: false
+    default: ""
+  ssh-config:
+    description: "Additional SSH config content (appended to ~/.ssh/config)"
+    required: false
+    default: ""
+  key-filename:
+    description: "Filename for the key under ~/.ssh/. Defaults to 'id_rsa'."
+    required: false
+    default: "id_rsa"
+  extra-key-b64:
+    description: "Optional second base64-encoded SSH private key."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

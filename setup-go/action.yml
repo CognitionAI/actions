@@ -1,0 +1,14 @@
+name: "Setup Go"
+description: "Install Go via the official actions/setup-go action. Thin wrapper for consistent DRS naming."
+category: "Language & runtime setup"
+inputs:
+  go-version:
+    description: "Go version to install (e.g. '1.22.0', '1.23.x'). Defaults to '1.22.0'."
+    required: false
+    default: "1.22.0"
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-go@v5
+      with:
+        go-version: ${{ inputs.go-version }}

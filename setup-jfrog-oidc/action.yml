@@ -1,5 +1,6 @@
 name: "Set up JFrog CLI with Devin OIDC"
 description: "Configure the JFrog CLI to authenticate via OIDC token exchange using Devin-issued OIDC tokens. Installs a jf wrapper that transparently refreshes credentials on 401. Use in the initialize section of your blueprint."
+category: "Workload identity (Devin OIDC)"
 inputs:
   jfrog-url:
     description: "JFrog Platform URL (e.g. 'https://mycompany.jfrog.io')"

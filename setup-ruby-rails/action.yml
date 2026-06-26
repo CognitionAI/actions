@@ -1,0 +1,19 @@
+name: "Setup Ruby"
+description: "Install Ruby via the official ruby/setup-ruby action. Thin wrapper for consistent DRS naming."
+category: "Language & runtime setup"
+inputs:
+  ruby-version:
+    description: "Ruby version to install (e.g. '3.3.0', '3.2'). Defaults to 'default' (reads .ruby-version)."
+    required: false
+    default: "default"
+  bundler:
+    description: "Bundler version to install. Defaults to 'Gemfile.lock'."
+    required: false
+    default: "Gemfile.lock"
+runs:
+  using: "composite"
+  steps:
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ inputs.ruby-version }}
+        bundler: ${{ inputs.bundler }}

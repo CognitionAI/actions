@@ -1,0 +1,18 @@
+name: "Configure pip private registry"
+description: "Configure pip to use a private PyPI registry. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  index-url:
+    description: "Primary index URL (e.g. 'https://nexus.corp.com/repository/pypi-proxy/simple')"
+    required: true
+  extra-index-url:
+    description: "Extra index URL for fallback. Leave empty to skip."
+    required: false
+    default: ""
+  trusted-host:
+    description: "Trusted host for self-signed certs (e.g. 'nexus.corp.com'). Leave empty to skip."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

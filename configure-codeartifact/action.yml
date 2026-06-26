@@ -1,0 +1,28 @@
+name: "Configure AWS CodeArtifact"
+description: "Refresh an AWS CodeArtifact auth token and configure package managers (npm, pip, Maven). Use in the maintenance section of your blueprint since tokens expire."
+category: "Private registries"
+inputs:
+  domain:
+    description: "CodeArtifact domain name"
+    required: true
+  domain-owner:
+    description: "AWS account ID that owns the domain"
+    required: true
+  region:
+    description: "AWS region (e.g. 'us-east-1')"
+    required: true
+  npm-repo:
+    description: "CodeArtifact repository name for npm. Leave empty to skip npm config."
+    required: false
+    default: ""
+  pypi-repo:
+    description: "CodeArtifact repository name for PyPI/pip. Leave empty to skip pip config."
+    required: false
+    default: ""
+  maven-repo:
+    description: "CodeArtifact repository name for Maven. Leave empty to skip Maven config."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

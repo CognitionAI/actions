@@ -1,0 +1,20 @@
+name: "Configure Docker private registry"
+description: "Authenticate Docker with a private registry. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  registry-url:
+    description: "Registry hostname (e.g. 'registry.corp.com')"
+    required: true
+  username:
+    description: "Username for docker login. Use $SECRET_NAME syntax in blueprints."
+    required: true
+  password:
+    description: "Password or token for docker login. Use $SECRET_NAME syntax in blueprints."
+    required: true
+  configure-buildkit:
+    description: "Enable Docker BuildKit. Defaults to 'true'."
+    required: false
+    default: "true"
+runs:
+  using: "node20"
+  main: "dist/index.js"

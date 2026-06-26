@@ -1,0 +1,22 @@
+name: "Configure Composer private registry"
+description: "Configure Composer to use a private Packagist or Satis repository. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  repo-url:
+    description: "Repository URL (e.g. 'https://packagist.corp.com')"
+    required: true
+  repo-name:
+    description: "Repository name for Composer config (e.g. 'corp-packagist')"
+    required: false
+    default: "private"
+  repo-type:
+    description: "Repository type: 'composer' or 'vcs'. Defaults to 'composer'."
+    required: false
+    default: "composer"
+  auth-token:
+    description: "Authentication token (Bearer). Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"

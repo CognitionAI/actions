@@ -1,0 +1,21 @@
+name: "Configure Cargo private registry"
+description: "Configure Cargo to use a private crate registry. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  registry-name:
+    description: "Name for the registry in Cargo config (e.g. 'corp-crates')"
+    required: true
+  index-url:
+    description: "Registry index URL"
+    required: true
+  token:
+    description: "Authentication token. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+  replace-crates-io:
+    description: "Replace crates.io with this registry. Defaults to 'false'."
+    required: false
+    default: "false"
+runs:
+  using: "node20"
+  main: "dist/index.js"

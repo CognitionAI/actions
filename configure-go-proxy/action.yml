@@ -1,0 +1,22 @@
+name: "Configure Go module proxy"
+description: "Configure GOPROXY and GONOSUMCHECK for private Go modules. Use in the initialize section of your blueprint."
+category: "Private registries"
+inputs:
+  goproxy:
+    description: "GOPROXY URL (e.g. 'https://goproxy.corp.com,https://proxy.golang.org,direct')"
+    required: true
+  gonosumcheck:
+    description: "GONOSUMCHECK pattern for private modules (e.g. 'github.com/myorg/*')"
+    required: false
+    default: ""
+  goprivate:
+    description: "GOPRIVATE pattern (e.g. 'github.com/myorg/*')"
+    required: false
+    default: ""
+  netrc-content:
+    description: "Content for ~/.netrc for authentication. Use $SECRET_NAME syntax in blueprints."
+    required: false
+    default: ""
+runs:
+  using: "node20"
+  main: "dist/index.js"
