@@ -3,6 +3,43 @@ import { run, tryRun, writeFileWithSudo, exportVariable, getArch, commandExists 
 import { installDevinOidcCli } from "../../shared/devin-oidc-cli";
 
 /**
+ * Single-quote a value for safe embedding in a generated bash script. Wraps the
+ * value in single quotes and escapes any embedded single quotes, so the result
+ * is a single shell word that cannot break out of its quoting (no command or
+ * quote injection, no variable/glob expansion).
+ */
+function shellQuote(value: string): string {
+  return `'${value.replace(/'/g, "'\\''")}'`;
+}
+
+/**
+ * Ensure an input is a well-formed https:// URL. Throws on anything else so a
+ * hostile value cannot be used as the OIDC token-exchange endpoint.
+ */
+function validateHttpsUrl(name: string, value: string): string {
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new Error(`${name} must be a valid URL, got: ${value}`);
+  }
+  if (parsed.protocol !== "https:") {
+    throw new Error(`${name} must use https://, got: ${value}`);
+  }
+  return value;
+}
+
+/**
+ * Restrict an input to a conservative character set. Throws otherwise.
+ */
+function validatePattern(name: string, value: string, pattern: RegExp): string {
+  if (!pattern.test(value)) {
+    throw new Error(`${name} contains disallowed characters, got: ${value}`);
+  }
+  return value;
+}
+
+/**
  * Shell script that exchanges a Devin OIDC token for a JFrog access token
  * and updates the jf CLI config. Called by the jf wrapper on auth failure,
  * or directly via `devin-oidc-jfrog-refresh`.
@@ -17,11 +54,11 @@ function refreshScript(inputs: {
   return `#!/usr/bin/env bash
 set -euo pipefail
 
-JFROG_URL="${inputs.jfrogUrl}"
-PROVIDER_NAME="${inputs.providerName}"
-AUDIENCE="${inputs.audience}"
-SUBJECT_KEYS="${inputs.subjectKeys}"
-SERVER_ID="${inputs.serverId}"
+JFROG_URL=${shellQuote(inputs.jfrogUrl)}
+PROVIDER_NAME=${shellQuote(inputs.providerName)}
+AUDIENCE=${shellQuote(inputs.audience)}
+SUBJECT_KEYS=${shellQuote(inputs.subjectKeys)}
+SERVER_ID=${shellQuote(inputs.serverId)}
 
 die() { echo "devin-oidc-jfrog: $1" >&2; exit 1; }
 
@@ -125,13 +162,35 @@ async function installJfrogCli(version: string): Promise<void> {
 
 async function main(): Promise<void> {
   try {
-    const jfrogUrl = core.getInput("jfrog-url", { required: true });
-    const providerName = core.getInput("provider-name", { required: true });
+    const jfrogUrl = validateHttpsUrl(
+      "jfrog-url",
+      core.getInput("jfrog-url", { required: true }),
+    );
+    const providerName = validatePattern(
+      "provider-name",
+      core.getInput("provider-name", { required: true }),
+      /^[A-Za-z0-9._-]+$/,
+    );
+    // audience may be a custom identifier or a URL; it defaults to jfrog-url.
+    // It is shell-quoted at interpolation time, so no character restriction is
+    // imposed here, but it must not be empty.
     const audience = core.getInput("audience") || jfrogUrl;
-    const subjectKeys = core.getInput("subject-keys") || "org_id";
-    const serverId = core.getInput("server-id") || "default";
+    const subjectKeys = validatePattern(
+      "subject-keys",
+      core.getInput("subject-keys") || "org_id",
+      /^[A-Za-z0-9._ -]+$/,
+    );
+    const serverId = validatePattern(
+      "server-id",
+      core.getInput("server-id") || "default",
+      /^[A-Za-z0-9._-]+$/,
+    );
     const shouldInstall = core.getInput("install-jfrog-cli") !== "false";
-    const cliVersion = core.getInput("jfrog-cli-version") || "2.72.2";
+    const cliVersion = validatePattern(
+      "jfrog-cli-version",
+      core.getInput("jfrog-cli-version") || "2.72.2",
+      /^[A-Za-z0-9._-]+$/,
+    );
 
     // 1. Install devin-oidc CLI
     await installDevinOidcCli();
