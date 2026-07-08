@@ -25861,8 +25861,10 @@ main();
  * token via the webserver's RFC 8693 endpoint (POST {issuer}/api/oidc/token;
  * the webapp CDN forwards /api/* to the webserver, stripping the prefix).
  * Orgs on dedicated gitproxy tenants must route the exchange through the
- * tenant gitproxy (which attaches the attestation header), so the CLI falls
- * back to the git-manager host when the server requires the git proxy.
+ * tenant gitproxy (which attaches the attestation header), so when the server
+ * requires the git proxy the CLI falls back to the gitproxy: first the
+ * session-local gitproxy (git-manager.local, present on dedicated Firecracker
+ * VMs), then the public git-manager host.
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DEVIN_OIDC_CLI_PATH = void 0;
@@ -25891,8 +25893,9 @@ Options:
   --subject-keys   Space-delimited claim names composing the token's sub
                    (default: "org_id")
   --exchange-url   Token exchange endpoint. Defaults to {iss}/api/oidc/token
-                   from the general token, with a gitproxy fallback via the
-                   git-manager host when the server requires the git proxy.
+                   from the general token, with a gitproxy fallback (the
+                   session-local git-manager.local proxy, then the public
+                   git-manager host) when the server requires the git proxy.
 
 Environment:
   DEVIN_OIDC_TOKEN_FILE     General token path (default: /opt/.devin/oidc_token)
@@ -25937,6 +25940,12 @@ gitproxy_exchange_url() {
   base="\${host#*.}"
   echo "https://git-manager.$base/oidc/token"
 }
+
+# The session-local gitproxy runs on the hypervisor of dedicated Firecracker
+# VMs, reachable at git-manager.local (see the /etc/hosts entry the session
+# setup adds), and serves the same /oidc/ route. Prefer it over the public
+# git-manager host so the exchange stays on the tenant's own proxy.
+LOCAL_GITPROXY_EXCHANGE_URL="http://git-manager.local:7000/oidc/token"
 
 # try_exchange <url>: on success print the exchanged token and return 0.
 try_exchange() {
@@ -25991,8 +26000,12 @@ cmd_token() {
   local direct_error="$LAST_ERROR"
   case "$direct_error" in
     *"git proxy"*)
+      # Dedicated gitproxy tenants must exchange through the tenant gitproxy.
+      # Try the session-local proxy first, then the public git-manager host.
+      try_exchange "$LOCAL_GITPROXY_EXCHANGE_URL" && return
+      local local_error="$LAST_ERROR"
       try_exchange "$(gitproxy_exchange_url "$issuer")" && return
-      die "token exchange failed. direct: $direct_error; gitproxy: $LAST_ERROR"
+      die "token exchange failed. direct: $direct_error; local gitproxy: $local_error; gitproxy: $LAST_ERROR"
       ;;
   esac
   die "token exchange failed: $direct_error"
