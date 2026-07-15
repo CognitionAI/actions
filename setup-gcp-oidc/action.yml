@@ -1,0 +1,29 @@
+name: "Set up Google Cloud with Devin OIDC"
+description: "Configure gcloud and Google Cloud SDKs to authenticate via Workload Identity Federation using Devin-issued OIDC tokens (exchanged with the devin-oidc CLI through an executable credential source). Use in the initialize section of your blueprint."
+inputs:
+  workload-identity-provider:
+    description: "Full resource name of the workload identity pool provider (e.g. 'projects/123456789/locations/global/workloadIdentityPools/devin/providers/devin-oidc')"
+    required: true
+  service-account:
+    description: "Email of the service account to impersonate (must grant roles/iam.workloadIdentityUser to the federated identity). Leave empty to use the federated identity directly."
+    required: false
+    default: ""
+  audience:
+    description: "Audience for the exchanged OIDC token; must be in the provider's allowed audiences. Defaults to 'https://iam.googleapis.com/' + workload-identity-provider (GCP's default allowed audience)."
+    required: false
+    default: ""
+  subject-keys:
+    description: "Space-delimited claim names composing the token's sub claim (for attribute mapping / attribute conditions in the provider)"
+    required: false
+    default: "org_id"
+  project:
+    description: "Default GCP project ID to set on the gcloud config. Leave empty to skip."
+    required: false
+    default: ""
+  install-gcloud:
+    description: "Whether to install the gcloud CLI (set to 'false' if already installed)"
+    required: false
+    default: "true"
+runs:
+  using: "node20"
+  main: "dist/index.js"
