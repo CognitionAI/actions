@@ -1,0 +1,29 @@
+name: "Set up Infisical with Devin OIDC"
+description: "Configure the Infisical CLI to authenticate via OIDC Auth using Devin-issued OIDC tokens (exchanged with the devin-oidc CLI). Use in the initialize section of your blueprint."
+inputs:
+  infisical-url:
+    description: "Infisical instance URL (e.g. 'https://app.infisical.com' or your self-hosted address)"
+    required: false
+    default: "https://app.infisical.com"
+  identity-id:
+    description: "Machine identity ID configured with OIDC Auth in Infisical"
+    required: true
+  audience:
+    description: "Audience for the exchanged OIDC token; must match the OIDC Auth configuration's audiences. Defaults to infisical-url."
+    required: false
+    default: ""
+  subject-keys:
+    description: "Space-delimited claim names composing the token's sub claim (for the OIDC Auth subject condition)"
+    required: false
+    default: "org_id"
+  install-infisical-cli:
+    description: "Whether to install the Infisical CLI (set to 'false' if already installed)"
+    required: false
+    default: "true"
+  infisical-cli-version:
+    description: "Infisical CLI version to install (ignored if install-infisical-cli is 'false')"
+    required: false
+    default: "0.43.110"
+runs:
+  using: "node20"
+  main: "dist/index.js"
