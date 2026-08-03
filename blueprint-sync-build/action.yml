@@ -1,0 +1,55 @@
+name: "Devin blueprint sync and build"
+description: "Sync a repo's .devin/blueprint.yaml to Devin, trigger a snapshot build, and optionally wait for it to finish. Use in a GitHub workflow (e.g. post-merge) — not in a blueprint."
+inputs:
+  api-key:
+    description: "Devin API key (service user or personal access token). Store it as a GitHub Actions secret."
+    required: true
+  org-id:
+    description: "Devin organization ID (e.g. 'org_...')"
+    required: true
+  repo:
+    description: "Repository to sync in 'owner/repo' form or a full provider URL. Defaults to the current repository."
+    required: false
+    default: ${{ github.repository }}
+  base-url:
+    description: "Devin API base URL"
+    required: false
+    default: "https://api.devin.ai"
+  sync:
+    description: "Sync the repo's blueprint from Git before building"
+    required: false
+    default: "true"
+  build:
+    description: "Trigger a snapshot build after syncing"
+    required: false
+    default: "true"
+  wait:
+    description: "Wait for the triggered build to finish and fail the step if the build fails"
+    required: false
+    default: "true"
+  timeout-minutes:
+    description: "Maximum time to wait for the build to finish"
+    required: false
+    default: "60"
+outputs:
+  build-id:
+    description: "ID of the triggered build (empty when build is disabled)"
+    value: ${{ steps.run.outputs.build-id }}
+  build-status:
+    description: "Final build status: pending, running, succeeded, failed, or cancelled"
+    value: ${{ steps.run.outputs.build-status }}
+runs:
+  using: "composite"
+  steps:
+    - id: run
+      shell: bash
+      env:
+        DEVIN_API_KEY: ${{ inputs.api-key }}
+        DEVIN_ORG_ID: ${{ inputs.org-id }}
+        DEVIN_REPO: ${{ inputs.repo }}
+        DEVIN_BASE_URL: ${{ inputs.base-url }}
+        DO_SYNC: ${{ inputs.sync }}
+        DO_BUILD: ${{ inputs.build }}
+        DO_WAIT: ${{ inputs.wait }}
+        TIMEOUT_MINUTES: ${{ inputs.timeout-minutes }}
+      run: ${{ github.action_path }}/sync-build.sh

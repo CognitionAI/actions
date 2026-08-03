@@ -1,8 +1,8 @@
 # Cognition Actions
 
-Reusable actions for giving Devin sessions short-lived access to services through OpenID Connect (OIDC), without storing long-lived credentials in Devin.
+Reusable actions for working with Devin.
 
-These actions are intended for the `initialize` section of a Devin environment blueprint.
+The `setup-*-oidc` actions give Devin sessions short-lived access to services through OpenID Connect (OIDC), without storing long-lived credentials in Devin; they are intended for the `initialize` section of a Devin environment blueprint. `blueprint-sync-build` runs in a GitHub Actions workflow to keep git-backed blueprints in sync with Devin.
 
 ## Available actions
 
@@ -14,6 +14,7 @@ These actions are intended for the `initialize` section of a Devin environment b
 | [`setup-vault-oidc`](./setup-vault-oidc/README.md) | Configure HashiCorp Vault CLI authentication with Devin OIDC |
 | [`setup-jfrog-oidc`](./setup-jfrog-oidc/README.md) | Configure JFrog CLI authentication with Devin OIDC |
 | [`setup-infisical-oidc`](./setup-infisical-oidc/README.md) | Configure Infisical CLI authentication with Devin OIDC |
+| [`blueprint-sync-build`](./blueprint-sync-build/README.md) | Sync a git-backed blueprint to Devin and trigger/await a snapshot build (runs in GitHub CI, not in a blueprint) |
 
 ## `setup-devin-oidc`
 
