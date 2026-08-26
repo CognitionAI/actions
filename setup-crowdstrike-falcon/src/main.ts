@@ -96,8 +96,8 @@ async function main(): Promise<void> {
     if (!/^[0-9A-F]{32}-[0-9A-F]{2}$/i.test(cid)) {
       throw new Error("cid must be a 32-hex CID followed by '-' and a 2-digit checksum");
     }
-    if (!/^\d+$/.test(versionDecrement)) {
-      throw new Error("sensor-version-decrement must be a non-negative integer");
+    if (!/^[0-5]$/.test(versionDecrement)) {
+      throw new Error("sensor-version-decrement must be an integer between 0 and 5");
     }
 
     const env: Record<string, string> = {

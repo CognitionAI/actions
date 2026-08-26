@@ -34,7 +34,7 @@ The API client needs the `Sensor Download: Read` scope (plus `Sensor Update Poli
 | `cid` | Yes | — | Customer ID with checksum (`<32 hex>-<2 digits>`) |
 | `cloud` | Yes | — | `us-1`, `us-2`, `eu-1`, `us-gov-1`, `us-gov-2` |
 | `tags` | No | — | Comma-separated sensor grouping tags |
-| `sensor-version-decrement` | No | `0` | Install N minus this many releases |
+| `sensor-version-decrement` | No | `0` | Install N minus this many releases (0-5) |
 | `sensor-update-policy` | No | — | Install the version pinned by this Falcon sensor update policy (overrides `sensor-version-decrement`) |
 | `backend` | No | `auto` | `auto`, `bpf` or `kernel` |
 | `client-id-env` | No | `FALCON_CLIENT_ID` | Env var / org secret holding the API client ID |

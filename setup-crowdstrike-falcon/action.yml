@@ -12,7 +12,7 @@ inputs:
     required: false
     default: ""
   sensor-version-decrement:
-    description: "Install N minus this many sensor releases (1 = N-1)"
+    description: "Install N minus this many sensor releases, 0-5 (1 = N-1)"
     required: false
     default: "0"
   sensor-update-policy:
