@@ -1,6 +1,6 @@
 # Cognition Actions
 
-Reusable actions for giving Devin sessions short-lived access to services through OpenID Connect (OIDC), without storing long-lived credentials in Devin.
+Reusable actions for Devin blueprints: short-lived access to services through OpenID Connect (OIDC) without storing long-lived credentials in Devin, and security tooling for the Devin VM image.
 
 These actions are intended for the `initialize` section of a Devin environment blueprint.
 
@@ -14,6 +14,7 @@ These actions are intended for the `initialize` section of a Devin environment b
 | [`setup-vault-oidc`](./setup-vault-oidc/README.md) | Configure HashiCorp Vault CLI authentication with Devin OIDC |
 | [`setup-jfrog-oidc`](./setup-jfrog-oidc/README.md) | Configure JFrog CLI authentication with Devin OIDC |
 | [`setup-infisical-oidc`](./setup-infisical-oidc/README.md) | Configure Infisical CLI authentication with Devin OIDC |
+| [`setup-crowdstrike-falcon`](./setup-crowdstrike-falcon/README.md) | Install the CrowdStrike Falcon EDR sensor into the VM image (golden-image mode) |
 
 ## `setup-devin-oidc`
 
