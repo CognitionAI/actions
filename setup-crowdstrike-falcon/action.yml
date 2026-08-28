@@ -1,0 +1,40 @@
+name: "Set up CrowdStrike Falcon sensor"
+description: "Install the CrowdStrike Falcon sensor into the Devin VM image using CrowdStrike's official installer, prepared as a golden image so every session VM registers as its own Falcon host. API credentials are read from org secrets (mark them build-only). Use in the initialize section of your blueprint."
+inputs:
+  cid:
+    description: "CrowdStrike Customer ID (CID) with checksum, e.g. 'ABCDEF0123456789ABCDEF0123456789-12'"
+    required: true
+  cloud:
+    description: "Falcon cloud region: us-1, us-2, eu-1, us-gov-1 or us-gov-2"
+    required: true
+  tags:
+    description: "Comma-separated sensor grouping tags, e.g. 'Devin,NonProd'"
+    required: false
+    default: ""
+  sensor-version-decrement:
+    description: "Install N minus this many sensor releases, 0-5 (1 = N-1)"
+    required: false
+    default: "0"
+  sensor-update-policy:
+    description: "Name of a Falcon sensor update policy whose pinned version should be installed (takes precedence over sensor-version-decrement)"
+    required: false
+    default: ""
+  backend:
+    description: "Sensor backend: auto, bpf or kernel. Devin VMs cannot load kernel modules, so auto resolves to bpf (User Mode)."
+    required: false
+    default: "auto"
+  client-id-env:
+    description: "Name of the org secret (environment variable) holding the Falcon API client ID"
+    required: false
+    default: "FALCON_CLIENT_ID"
+  client-secret-env:
+    description: "Name of the org secret (environment variable) holding the Falcon API client secret"
+    required: false
+    default: "FALCON_CLIENT_SECRET"
+  provisioning-token-env:
+    description: "Name of the org secret (environment variable) holding an installation/provisioning token. Only needed if your CID requires one."
+    required: false
+    default: "FALCON_PROVISIONING_TOKEN"
+runs:
+  using: "node20"
+  main: "dist/index.js"
