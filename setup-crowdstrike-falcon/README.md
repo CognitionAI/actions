@@ -2,7 +2,7 @@
 
 Installs the CrowdStrike Falcon sensor into the Devin VM image so your security team gets the same EDR/XDR telemetry (processes, files, network) from every Devin session as from the rest of your fleet.
 
-The action runs CrowdStrike's official [`falcon-linux-install.sh`](https://github.com/CrowdStrike/falcon-scripts/tree/main/bash/install) (vendored and pinned in this repo, see `vendor/`) with `PREP_GOLDEN_IMAGE=true`: the sensor is installed and configured, its agent ID is cleared, and the service is enabled for boot but not left registered. Every session VM booted from the snapshot then registers as its own Falcon host.
+The action runs CrowdStrike's official [`falcon-linux-install.sh`](https://github.com/CrowdStrike/falcon-scripts/tree/main/bash/install) (vendored and pinned in this repo, see `vendor/`) with `PREP_GOLDEN_IMAGE=true`: the installer installs the sensor, starts it once on the build VM to obtain an agent ID, then clears that agent ID. The action then makes sure the service is enabled for boot and stops it, so the snapshot contains a configured, unregistered sensor. Every session VM booted from the snapshot registers as its own Falcon host.
 
 ## Usage
 
@@ -25,7 +25,7 @@ Create two org secrets and mark them **Build only** so they are scrubbed from th
 | `FALCON_CLIENT_ID` | Falcon API client ID |
 | `FALCON_CLIENT_SECRET` | Falcon API client secret |
 
-The API client needs the `Sensor Download: Read` scope (plus `Sensor Update Policies: Read` if you use `sensor-update-policy`, and `Installation Tokens: Read` if your CID requires provisioning tokens). If your secrets have different names, point `client-id-env` / `client-secret-env` at them. Secret values are passed to the installer through the process environment only and are never echoed to the build log.
+The API client needs the `Sensor Download: Read` scope (plus `Sensor Update Policies: Read` if you use `sensor-update-policy`, and `Installation Tokens: Read` if your CID requires provisioning tokens). If your secrets have different names, point `client-id-env` / `client-secret-env` at them. Secret values are passed to the installer through the child process environment only (`sudo --preserve-env`), never on a command line or in the build log.
 
 ## Inputs
 
@@ -47,7 +47,7 @@ The API client needs the `Sensor Download: Read` scope (plus `Sensor Update Poli
 - `falcon-sensor.service` exists and is `enabled` (enabled explicitly if the package did not)
 - the agent ID has been cleared (golden image prep succeeded)
 
-The sensor is never started during the build.
+The sensor is stopped before the snapshot is taken. Note that the build VM itself briefly registers with Falcon while the installer obtains the agent ID; that host entry goes idle once the build finishes.
 
 ## Notes
 

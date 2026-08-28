@@ -25714,10 +25714,11 @@ function validateChoice(name, value, allowed) {
     }
     return value;
 }
-/** Runs the installer as root. Secrets travel via argv to `env`, never through a shell, and the command line is not echoed. */
+/** Runs the installer as root. Secrets travel only in the child environment (never argv or a shell) and the command line is not echoed. */
 async function runInstaller(script, env) {
-    const assignments = Object.entries(env).map(([k, v]) => `${k}=${v}`);
-    const exitCode = await exec.exec("sudo", ["env", ...assignments, "bash", script], {
+    const preserved = Object.keys(env).join(",");
+    const exitCode = await exec.exec("sudo", [`--preserve-env=${preserved}`, "bash", script], {
+        env: { ...process.env, ...env },
         silent: true,
         ignoreReturnCode: true,
         listeners: {
@@ -25738,8 +25739,7 @@ async function verifyInstall() {
     if (unit.exitCode !== 0 || !unit.stdout.includes(`${SERVICE}.service`)) {
         throw new Error(`${SERVICE}.service unit not found`);
     }
-    // The sensor must start on boot in every session VM so it registers as a new host.
-    // Enabling does not start it now (a started sensor would register the build VM).
+    // Each session VM boots from the snapshot and must start the sensor to register as a new host.
     await (0, drs_1.run)(`sudo systemctl enable ${SERVICE}`, { silent: true });
     const enabled = (await (0, drs_1.run)(`systemctl is-enabled ${SERVICE}`, { silent: true })).trim();
     if (enabled !== "enabled") {
@@ -25749,8 +25749,11 @@ async function verifyInstall() {
     if (/aid="[0-9a-f]+"/i.test(aid.stdout)) {
         throw new Error("Sensor still has an agent ID; golden image prep did not clear it");
     }
+    // The installer starts the sensor to obtain an AID and then clears it; stop it so the
+    // snapshot does not carry a running, AID-less sensor from the build VM.
+    await (0, drs_1.run)(`sudo systemctl stop ${SERVICE}`, { silent: true });
     const info = await (0, drs_1.tryRun)(`sudo ${FALCONCTL} -g --cid --tags --backend`, { silent: true });
-    core.info(`falcon-sensor installed, enabled for boot, agent ID cleared. ${info.stdout.trim()}`);
+    core.info(`falcon-sensor installed, enabled for boot, stopped, agent ID cleared. ${info.stdout.trim()}`);
 }
 async function main() {
     try {
