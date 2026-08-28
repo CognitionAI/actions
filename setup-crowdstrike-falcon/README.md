@@ -51,12 +51,9 @@ The sensor is stopped before the snapshot is taken. Note that the build VM itsel
 
 ## Notes
 
+- **Platform.** Linux Devin VMs only; the action fails fast on any other platform.
 - **Backend.** Devin VMs cannot load kernel modules, so the sensor runs in User Mode (eBPF). Devin's kernel ships the required BPF options; the Falcon console shows the host in User Mode with RFM = No (full telemetry).
 - **Egress.** Allow `*.crowdstrike.com` (or your cloud's specific sensor and API hosts) in the tenant egress policy. Domain-based egress that does not terminate TLS works without further changes.
 - **Host inventory.** Each session VM is a new Falcon host that goes idle when the session ends. Configure a host retention / auto-decommission policy in Falcon for the tags you set here.
 - **Non-prod vs prod.** Use separate blueprints (or separate `cid` values) per CID; nothing customer-specific is baked into the action.
 - **Pinning.** For an EDR agent, reference a tagged release of this repo rather than `@main`.
-
-## Updating the vendored installer
-
-`vendor/falcon-linux-install.sh` is CrowdStrike's script at tag `v1.13.0` (SHA-256 `4d4aee62aaa42516bb6245e9289c76c64062e771870108464b66985952ef0f33`). To update, download the new tag from `https://raw.githubusercontent.com/CrowdStrike/falcon-scripts/<tag>/bash/install/falcon-linux-install.sh`, record the tag and checksum here, and review the diff.

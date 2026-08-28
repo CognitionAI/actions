@@ -87,6 +87,13 @@ async function verifyInstall(): Promise<void> {
 
 async function main(): Promise<void> {
   try {
+    if (process.platform !== "linux") {
+      throw new Error(
+        `setup-crowdstrike-falcon only supports Linux Devin VMs (detected '${process.platform}'). ` +
+          "Windows and macOS sensors are not supported by this action.",
+      );
+    }
+
     const cid = core.getInput("cid", { required: true }).trim();
     const cloud = validateChoice("cloud", core.getInput("cloud", { required: true }).trim(), CLOUDS);
     const tags = core.getInput("tags").trim();
