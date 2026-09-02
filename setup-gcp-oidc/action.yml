@@ -1,5 +1,6 @@
 name: "Set up Google Cloud with Devin OIDC"
 description: "Configure gcloud and Google Cloud SDKs to authenticate via Workload Identity Federation using Devin-issued OIDC tokens (exchanged with the devin-oidc CLI through an executable credential source). Use in the initialize section of your blueprint."
+category: "Cloud Access"
 inputs:
   workload-identity-provider:
     description: "Full resource name of the workload identity pool provider (e.g. 'projects/123456789/locations/global/workloadIdentityPools/devin/providers/devin-oidc')"

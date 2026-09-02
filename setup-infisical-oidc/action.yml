@@ -1,5 +1,6 @@
 name: "Set up Infisical with Devin OIDC"
 description: "Configure the Infisical CLI to authenticate via OIDC Auth using Devin-issued OIDC tokens (exchanged with the devin-oidc CLI). Use in the initialize section of your blueprint."
+category: "Cloud Access"
 inputs:
   infisical-url:
     description: "Infisical instance URL (e.g. 'https://app.infisical.com' or your self-hosted address)"

@@ -1,5 +1,6 @@
 name: "Set up CrowdStrike Falcon sensor"
 description: "Install the CrowdStrike Falcon sensor into the Devin VM image using CrowdStrike's official installer, prepared as a golden image so every session VM registers as its own Falcon host. API credentials are read from org secrets (mark them build-only). Use in the initialize section of your blueprint."
+category: "Security"
 inputs:
   cid:
     description: "CrowdStrike Customer ID (CID) with checksum, e.g. 'ABCDEF0123456789ABCDEF0123456789-12'"
