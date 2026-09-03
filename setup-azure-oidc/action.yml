@@ -1,5 +1,6 @@
 name: "Set up Azure CLI with Devin OIDC"
 description: "Configure Azure CLI and Azure SDKs to authenticate via Microsoft Entra workload identity federation using Devin-issued OIDC tokens (exchanged with the devin-oidc CLI). Use in the initialize section of your blueprint."
+category: "Cloud Access"
 inputs:
   client-id:
     description: "Application (client) ID of the Entra app registration or user-assigned managed identity with a federated identity credential trusting Devin"
