@@ -14,6 +14,7 @@ These actions are intended for the `initialize` section of a Devin environment b
 | [`setup-vault-oidc`](./setup-vault-oidc/README.md) | Configure HashiCorp Vault CLI authentication with Devin OIDC |
 | [`setup-jfrog-oidc`](./setup-jfrog-oidc/README.md) | Configure JFrog CLI authentication with Devin OIDC |
 | [`setup-infisical-oidc`](./setup-infisical-oidc/README.md) | Configure Infisical CLI authentication with Devin OIDC |
+| [`setup-azure-oidc`](./setup-azure-oidc/README.md) | Configure Azure CLI and Azure SDK authentication with Devin OIDC |
 | [`setup-crowdstrike-falcon`](./setup-crowdstrike-falcon/README.md) | Install the CrowdStrike Falcon EDR sensor into the VM image (golden-image mode) |
 
 ## `setup-devin-oidc`
