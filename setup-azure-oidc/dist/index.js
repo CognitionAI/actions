@@ -25792,7 +25792,10 @@ async function resolveRealAz() {
             return false;
         }
     }
-    await (0, drs_1.run)(`sudo ln -sf "${azPath}" "${realAzPath}"`);
+    // The Debian az launcher locates its Python runtime relative to its own
+    // path, so a symlink would break it. Use an exec shim instead.
+    await (0, drs_1.writeFileWithSudo)(realAzPath, `#!/usr/bin/env bash\nexec "${azPath}" "$@"\n`);
+    await (0, drs_1.run)(`sudo chmod 755 "${realAzPath}"`);
     return true;
 }
 async function main() {
