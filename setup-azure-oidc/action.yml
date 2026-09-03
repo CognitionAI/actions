@@ -1,0 +1,28 @@
+name: "Set up Azure CLI with Devin OIDC"
+description: "Configure Azure CLI and Azure SDKs to authenticate via Microsoft Entra workload identity federation using Devin-issued OIDC tokens (exchanged with the devin-oidc CLI). Use in the initialize section of your blueprint."
+inputs:
+  client-id:
+    description: "Application (client) ID of the Entra app registration or user-assigned managed identity with a federated identity credential trusting Devin"
+    required: true
+  tenant-id:
+    description: "Entra tenant ID"
+    required: true
+  subscription-id:
+    description: "Default Azure subscription to select"
+    required: false
+    default: ""
+  audience:
+    description: "Audience for the exchanged OIDC token; must match the federated credential's audience"
+    required: false
+    default: "api://AzureADTokenExchange"
+  subject-keys:
+    description: "Space-delimited claim names composing the token's sub claim"
+    required: false
+    default: "org_id"
+  install-azure-cli:
+    description: "Whether to install the Azure CLI if it is absent"
+    required: false
+    default: "true"
+runs:
+  using: "node20"
+  main: "dist/index.js"
