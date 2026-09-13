@@ -29,6 +29,7 @@ aws sts get-caller-identity
 | `subject-keys` | No | `org_id` | Space-delimited Devin claims used to form the token subject |
 | `session-name` | No | `devin` | AWS role session name |
 | `duration-seconds` | No | `3600` | Assumed-role session duration, subject to the role maximum |
+| `set-default-profile` | No | `false` | When `profile` is not `default`, also point `[default]` at the same helper |
 
 To use a named profile:
 
@@ -43,7 +44,11 @@ initialize:
 
 ```bash
 aws sts get-caller-identity --profile devin
+# or
+AWS_PROFILE=devin aws sts get-caller-identity
 ```
+
+Set `set-default-profile: "true"` to also configure `[default]` with the same helper, so commands that select no profile work too. An existing `[default]` section is left unchanged.
 
 ## AWS prerequisites
 

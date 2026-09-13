@@ -29,6 +29,10 @@ inputs:
     description: "Duration of the assumed-role session in seconds"
     required: false
     default: "3600"
+  set-default-profile:
+    description: "When 'profile' is not 'default', also configure [default] to use the same credential helper (skipped if [default] already exists)"
+    required: false
+    default: "false"
 runs:
   using: "node20"
   main: "dist/index.js"
