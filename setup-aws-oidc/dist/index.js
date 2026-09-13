@@ -25692,11 +25692,13 @@ function credentialHelperScript(inputs) {
     // web_identity_token_file would go stale. credential_process is re-run by
     // the AWS CLI/SDKs whenever the assumed-role credentials expire, fetching a
     // fresh token each time. AssumeRoleWithWebIdentity is unsigned, so the
-    // helper needs no pre-existing AWS credentials.
+    // helper needs no pre-existing AWS credentials. The inner call runs with an
+    // empty config and no profile selection so it cannot recurse into (or fail
+    // to resolve) the profile it is providing credentials for.
     return `#!/usr/bin/env bash
 set -euo pipefail
 token=$(devin-oidc token --audience "${inputs.audience}" --subject-keys "${inputs.subjectKeys}")
-exec env AWS_CONFIG_FILE=/dev/null aws sts assume-role-with-web-identity \\
+exec env -u AWS_PROFILE -u AWS_DEFAULT_PROFILE AWS_CONFIG_FILE=/dev/null aws sts assume-role-with-web-identity \\
   --role-arn "${inputs.roleArn}" \\
   --role-session-name "${inputs.sessionName}" \\
   --web-identity-token "$token" \\
@@ -25733,11 +25735,14 @@ async function main() {
         const subjectKeys = core.getInput("subject-keys") || "org_id";
         const sessionName = core.getInput("session-name") || "devin";
         const durationSeconds = core.getInput("duration-seconds") || "3600";
+        const setDefaultProfile = core.getInput("set-default-profile") === "true";
         await (0, devin_oidc_cli_1.installDevinOidcCli)();
         const helperPath = `/usr/local/bin/devin-oidc-aws-credentials-${profile}`;
         await (0, drs_1.writeFileWithSudo)(helperPath, credentialHelperScript({ roleArn, audience, subjectKeys, sessionName, durationSeconds }));
         await (0, drs_1.run)(`sudo chmod 755 "${helperPath}"`);
         appendProfile(profile, helperPath, region);
+        if (setDefaultProfile && profile !== "default")
+            appendProfile("default", helperPath, region);
     }
     catch (error) {
         core.setFailed(error instanceof Error ? error.message : String(error));
