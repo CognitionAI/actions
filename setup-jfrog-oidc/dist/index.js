@@ -25941,7 +25941,8 @@ issuer_from_token() {
 # "git-manager." + the issuer's base domain (e.g. app.devin.ai -> devin.ai).
 gitproxy_exchange_url() {
   local host base
-  host=$(printf '%s' "$1" | sed 's|^https\\?://||; s|/.*||')
+  host="\${1#*://}"
+  host="\${host%%/*}"
   base="\${host#*.}"
   echo "https://git-manager.$base/oidc/token"
 }
