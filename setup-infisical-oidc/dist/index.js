@@ -25849,9 +25849,10 @@ main();
  * setup-aws-oidc actions.
  *
  * The CLI reads the session's general OIDC token (written by the brain to
- * /opt/.devin/oidc_token) and exchanges it for a short-lived audience-scoped
- * token via the webserver's RFC 8693 endpoint (POST {issuer}/api/oidc/token;
- * the webapp CDN forwards /api/* to the webserver, stripping the prefix).
+ * oidc_token in the Devin data dir) and exchanges it for a short-lived
+ * audience-scoped token via the webserver's RFC 8693 endpoint (POST
+ * {issuer}/api/oidc/token; the webapp CDN forwards /api/* to the webserver,
+ * stripping the prefix).
  * Orgs on dedicated gitproxy tenants must route the exchange through the
  * tenant gitproxy (which attaches the attestation header), so when the server
  * requires the git proxy the CLI falls back to the gitproxy: first the
@@ -25868,7 +25869,10 @@ const DEVIN_OIDC_SCRIPT = `#!/usr/bin/env bash
 # short-lived audience-scoped OIDC token (RFC 8693 token exchange).
 set -euo pipefail
 
-TOKEN_FILE="\${DEVIN_OIDC_TOKEN_FILE:-/opt/.devin/oidc_token}"
+# Same Devin data dir lookup as devin_bash_env, with a per-platform default.
+[ "$(uname -s)" = Darwin ] && DEFAULT_DEVIN_DIR="$HOME/.devin" || DEFAULT_DEVIN_DIR=/opt/.devin
+DEVIN_DIR="\${DEVIN_DIR:-\${DEVIN_REMOTE_STATE_DIR:-$DEFAULT_DEVIN_DIR}}"
+TOKEN_FILE="\${DEVIN_OIDC_TOKEN_FILE:-$DEVIN_DIR/oidc_token}"
 
 usage() {
   cat <<'EOF'
@@ -25890,7 +25894,8 @@ Options:
                    git-manager host) when the server requires the git proxy.
 
 Environment:
-  DEVIN_OIDC_TOKEN_FILE     General token path (default: /opt/.devin/oidc_token)
+  DEVIN_OIDC_TOKEN_FILE     General token path (default: oidc_token in the
+                            Devin data dir)
   DEVIN_OIDC_EXCHANGE_URL   Default exchange endpoint override
 EOF
 }
