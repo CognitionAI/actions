@@ -25818,9 +25818,11 @@ main();
  * setup-aws-oidc actions.
  *
  * The CLI reads the session's general OIDC token (written by the brain to
- * /opt/.devin/oidc_token) and exchanges it for a short-lived audience-scoped
- * token via the webserver's RFC 8693 endpoint (POST {issuer}/api/oidc/token;
- * the webapp CDN forwards /api/* to the webserver, stripping the prefix).
+ * oidc_token in the Devin data dir: /opt/.devin on Linux VMs, ~/.devin on
+ * macOS, $DEVIN_REMOTE_STATE_DIR on outposts) and exchanges it for a
+ * short-lived audience-scoped token via the webserver's RFC 8693 endpoint
+ * (POST {issuer}/api/oidc/token; the webapp CDN forwards /api/* to the
+ * webserver, stripping the prefix).
  * Orgs on dedicated gitproxy tenants must route the exchange through the
  * tenant gitproxy (which attaches the attestation header), so when the server
  * requires the git proxy the CLI falls back to the gitproxy: first the
@@ -25837,7 +25839,28 @@ const DEVIN_OIDC_SCRIPT = `#!/usr/bin/env bash
 # short-lived audience-scoped OIDC token (RFC 8693 token exchange).
 set -euo pipefail
 
-TOKEN_FILE="\${DEVIN_OIDC_TOKEN_FILE:-/opt/.devin/oidc_token}"
+# The Devin data dir is /opt/.devin on Linux VMs, ~/.devin on macOS, and a
+# per-session DEVIN_REMOTE_STATE_DIR on outposts. devin-remote exports the dir
+# it resolved as DEVIN_DIR, but credential helpers can run outside a Devin
+# shell, so fall back to the first known location that holds a token.
+default_token_file() {
+  local dir
+  for dir in "\${DEVIN_DIR:-}" "\${DEVIN_REMOTE_STATE_DIR:-}" /opt/.devin "\${HOME:-}/.devin"; do
+    if [ -n "$dir" ] && [ -r "$dir/oidc_token" ]; then
+      echo "$dir/oidc_token"
+      return
+    fi
+  done
+  if [ -n "\${DEVIN_DIR:-\${DEVIN_REMOTE_STATE_DIR:-}}" ]; then
+    echo "\${DEVIN_DIR:-\$DEVIN_REMOTE_STATE_DIR}/oidc_token"
+  elif [ "$(uname -s)" = "Darwin" ]; then
+    echo "\${HOME:-}/.devin/oidc_token"
+  else
+    echo "/opt/.devin/oidc_token"
+  fi
+}
+
+TOKEN_FILE="\${DEVIN_OIDC_TOKEN_FILE:-$(default_token_file)}"
 
 usage() {
   cat <<'EOF'
@@ -25859,7 +25882,9 @@ Options:
                    git-manager host) when the server requires the git proxy.
 
 Environment:
-  DEVIN_OIDC_TOKEN_FILE     General token path (default: /opt/.devin/oidc_token)
+  DEVIN_OIDC_TOKEN_FILE     General token path (default: oidc_token in the Devin
+                            data dir: $DEVIN_DIR, $DEVIN_REMOTE_STATE_DIR,
+                            /opt/.devin, or ~/.devin)
   DEVIN_OIDC_EXCHANGE_URL   Default exchange endpoint override
 EOF
 }
