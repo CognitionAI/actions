@@ -25920,7 +25920,8 @@ issuer_from_token() {
 # "git-manager." + the issuer's base domain (e.g. app.devin.ai -> devin.ai).
 gitproxy_exchange_url() {
   local host base
-  host=$(printf '%s' "$1" | sed 's|^https\\?://||; s|/.*||')
+  host="\${1#*://}"
+  host="\${host%%/*}"
   base="\${host#*.}"
   echo "https://git-manager.$base/oidc/token"
 }
@@ -25931,10 +25932,11 @@ gitproxy_exchange_url() {
 # git-manager host so the exchange stays on the tenant's own proxy.
 LOCAL_GITPROXY_EXCHANGE_URL="http://git-manager.local:7000/oidc/token"
 
-# try_exchange <url>: on success print the exchanged token and return 0.
+# try_exchange <url> [curl args...]: on success print the exchanged token and return 0.
 try_exchange() {
   local url="$1" out http body
-  out=$(curl -sS --connect-timeout 5 --max-time 30 -w '\\n%{http_code}' -X POST "$url" \\
+  shift
+  out=$(curl -sS --connect-timeout 5 --max-time 30 "$@" -w '\\n%{http_code}' -X POST "$url" \\
     --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \\
     --data-urlencode "subject_token=$GENERAL_TOKEN" \\
     --data-urlencode "subject_token_type=urn:ietf:params:oauth:token-type:jwt" \\
@@ -25986,7 +25988,8 @@ cmd_token() {
     *"git proxy"*)
       # Dedicated gitproxy tenants must exchange through the tenant gitproxy.
       # Try the session-local proxy first, then the public git-manager host.
-      try_exchange "$LOCAL_GITPROXY_EXCHANGE_URL" && return
+      # -4: macOS sends the AAAA lookup for .local to mDNS, which outlasts the connect timeout.
+      try_exchange "$LOCAL_GITPROXY_EXCHANGE_URL" -4 && return
       local local_error="$LAST_ERROR"
       try_exchange "$(gitproxy_exchange_url "$issuer")" && return
       die "token exchange failed. direct: $direct_error; local gitproxy: $local_error; gitproxy: $LAST_ERROR"
