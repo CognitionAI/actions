@@ -44,11 +44,16 @@ if [[ -s "$root/oidc-audience" ]]; then
   until refresh_token; do sleep 2; done
   while true; do
     sleep 30
-    refresh_token
+    refresh_token || true
   done &
 fi
 
-/usr/bin/log stream --style ndjson --level info --predicate 'process != "otelcol-contrib"' >> "$logs/unified.ndjson" &
+while true; do
+  : > "$logs/unified.ndjson"
+  /usr/bin/log stream --style ndjson --level info --predicate 'process != "otelcol-contrib"' |
+    head -c 67108864 >> "$logs/unified.ndjson" || true
+  sleep 1
+done &
 log_pid=$!
 trap 'kill "$log_pid" 2>/dev/null || true' EXIT
 "$root/otelcol-contrib" --config="$root/config.json"

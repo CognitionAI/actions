@@ -15,8 +15,8 @@
   <key>ThrottleInterval</key>
   <integer>10</integer>
   <key>StandardOutPath</key>
-  <string>/Library/Logs/DevinXdr/service.log</string>
+  <string>/dev/null</string>
   <key>StandardErrorPath</key>
-  <string>/Library/Logs/DevinXdr/service.log</string>
+  <string>/dev/null</string>
 </dict>
 </plist>

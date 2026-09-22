@@ -47,7 +47,7 @@ if ($env:DEVIN_XDR_COLLECT_NATIVE_AUDIT -eq "true") {
 }
 
 $imagePath = "`"$binary`" --config `"$env:DEVIN_XDR_CONFIG_PATH`""
-sc.exe create $serviceName binPath= $imagePath start= delayed-auto obj= LocalSystem DisplayName= "Devin XDR collector" | Out-Null
+sc.exe create $serviceName binPath= $imagePath start= demand obj= LocalSystem DisplayName= "Devin XDR collector" | Out-Null
 if ($LASTEXITCODE -ne 0) { throw "Could not create collector service" }
 sc.exe failure $serviceName reset= 86400 actions= restart/5000/restart/10000/restart/30000 | Out-Null
 
@@ -56,7 +56,6 @@ schtasks.exe /Create /TN DevinXdrIdentity /SC ONSTART /RU SYSTEM /RL HIGHEST /F 
 if ($LASTEXITCODE -ne 0) { throw "Could not create identity startup task" }
 
 New-Item -ItemType Directory -Path (Split-Path $env:DEVIN_XDR_LOG_PATH) -Force | Out-Null
-Set-Service -Name $serviceName -StartupType Automatic
 Stop-Service -Name $serviceName -Force -ErrorAction SilentlyContinue
 Remove-Item $env:DEVIN_XDR_STATE_DIR -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item $archive, "$archive.sha256" -Force -ErrorAction SilentlyContinue

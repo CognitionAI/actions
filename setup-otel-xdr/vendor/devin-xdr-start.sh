@@ -49,7 +49,7 @@ if [[ -s /etc/devin-xdr/oidc-audience ]]; then
   until refresh_token; do sleep 2; done
   while true; do
     sleep 30
-    refresh_token
+    refresh_token || true
   done &
 fi
 
