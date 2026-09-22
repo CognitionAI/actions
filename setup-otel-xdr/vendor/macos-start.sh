@@ -48,12 +48,31 @@ if [[ -s "$root/oidc-audience" ]]; then
   done &
 fi
 
-while true; do
-  : > "$logs/unified.ndjson"
+unified_log="$logs/unified.ndjson"
+touch "$unified_log"
+stream_unified() {
+  local current_size
+  while true; do
+    current_size=$(wc -c < "$unified_log")
   /usr/bin/log stream --style ndjson --level info --predicate 'process != "otelcol-contrib"' |
-    head -c 67108864 >> "$logs/unified.ndjson" || true
-  sleep 1
-done &
+      LC_ALL=C /usr/bin/awk -v path="$unified_log" -v max_bytes=67108864 -v bytes="$current_size" '
+        {
+          record_bytes = length($0) + 1
+          if (bytes + record_bytes > max_bytes) {
+            close(path)
+            printf "%s\n", $0 > path
+            close(path)
+            bytes = record_bytes
+          } else {
+            print >> path
+            bytes += record_bytes
+          }
+        }
+      ' || true
+    sleep 1
+  done
+}
+stream_unified &
 log_pid=$!
 trap 'kill "$log_pid" 2>/dev/null || true' EXIT
 "$root/otelcol-contrib" --config="$root/config.json"

@@ -13,6 +13,7 @@ tar -xzf "$tmp_dir/collector.tar.gz" -C "$tmp_dir" otelcol-contrib
 action_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 sudo launchctl bootout system/ai.devin.xdr 2>/dev/null || true
 sudo install -d -m 0755 "$DEVIN_XDR_INSTALL_DIR" "$DEVIN_XDR_CONFIG_DIR" "$(dirname "$DEVIN_XDR_LOG_PATH")"
+sudo install -d -m 0700 "$DEVIN_XDR_STATE_DIR"
 sudo install -m 0755 "$tmp_dir/otelcol-contrib" "$DEVIN_XDR_INSTALL_DIR/otelcol-contrib"
 sudo install -m 0755 "$action_root/vendor/macos-start.sh" "$DEVIN_XDR_INSTALL_DIR/start.sh"
 sudo install -m 0600 "$DEVIN_XDR_TEMP_CONFIG" "$DEVIN_XDR_CONFIG_PATH"
