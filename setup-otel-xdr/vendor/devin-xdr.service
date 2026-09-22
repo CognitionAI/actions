@@ -1,0 +1,17 @@
+[Unit]
+Description=Devin vendor-neutral XDR collector
+Wants=network-online.target
+After=network-online.target auditd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/libexec/devin-xdr-start
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target

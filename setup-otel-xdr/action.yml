@@ -1,0 +1,42 @@
+name: "Set up vendor-neutral XDR collector"
+description: "Collect platform-native security logs and host signals with the OpenTelemetry Collector and ship them to a centralized SIEM over OTLP/HTTP. Each cloned Devin VM gets a unique collector identity. Use in the initialize section of your blueprint."
+category: "Security"
+inputs:
+  endpoint:
+    description: "OTLP/HTTP base URL. The collector appends /v1/logs and /v1/metrics."
+    required: true
+  headers-env:
+    description: "Name of an org secret containing comma-separated OTLP headers, e.g. 'Authorization=Bearer token,X-Scope-OrgID=tenant'. Stored on the image for runtime use; use a write-only ingestion credential."
+    required: false
+    default: "OTEL_EXPORTER_OTLP_HEADERS"
+  headers:
+    description: "Non-secret comma-separated OTLP headers."
+    required: false
+    default: ""
+  oidc-audience:
+    description: "Audience for short-lived Devin OIDC bearer tokens. Prefer this to a reusable secret when the SIEM gateway trusts Devin OIDC."
+    required: false
+    default: ""
+  oidc-subject-keys:
+    description: "Space-delimited claims composing the exchanged OIDC token subject."
+    required: false
+    default: "org_id"
+  resource-attributes:
+    description: "Comma-separated OpenTelemetry resource attributes to attach to every signal."
+    required: false
+    default: ""
+  collector-version:
+    description: "Pinned opentelemetry-collector-contrib release."
+    required: false
+    default: "0.160.0"
+  collect-host-metrics:
+    description: "Collect CPU, memory, filesystem, network and per-process metrics."
+    required: false
+    default: "true"
+  collect-native-audit:
+    description: "Enable a bounded platform-native audit profile for process, network, identity and privilege-change events."
+    required: false
+    default: "true"
+runs:
+  using: "node20"
+  main: "dist/index.js"

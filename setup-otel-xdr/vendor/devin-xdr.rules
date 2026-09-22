@@ -1,0 +1,8 @@
+-w /etc/passwd -p wa -k devin_identity
+-w /etc/group -p wa -k devin_identity
+-w /etc/sudoers -p wa -k devin_privilege
+-w /etc/ssh/sshd_config -p wa -k devin_remote_access
+-a always,exit -F arch=b64 -S execve,execveat -F auid>=1000 -F auid!=4294967295 -k devin_process
+-a always,exit -F arch=b64 -S connect -F auid>=1000 -F auid!=4294967295 -k devin_network
+-a always,exit -F arch=b32 -S execve,execveat -F auid>=1000 -F auid!=4294967295 -k devin_process
+-a always,exit -F arch=b32 -S connect -F auid>=1000 -F auid!=4294967295 -k devin_network
