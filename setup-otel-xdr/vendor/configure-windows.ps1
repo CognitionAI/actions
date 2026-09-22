@@ -22,6 +22,8 @@ if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
 }
 
 New-Item -ItemType Directory -Path $root -Force | Out-Null
+icacls.exe $root /inheritance:r /grant:r "SYSTEM:(OI)(CI)F" "Administrators:(OI)(CI)F" | Out-Null
+if ($LASTEXITCODE -ne 0) { throw "Could not restrict collector configuration ACLs" }
 tar.exe -xzf $archive -C $root otelcol-contrib.exe
 Copy-Item $env:DEVIN_XDR_TEMP_CONFIG $env:DEVIN_XDR_CONFIG_PATH -Force
 Copy-Item (Join-Path $env:GITHUB_ACTION_PATH "vendor\windows-identity.ps1") $identityScript -Force

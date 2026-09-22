@@ -25949,6 +25949,10 @@ async function main() {
         if (!URL.canParse(endpoint) || new URL(endpoint).protocol !== "https:") {
             throw new Error("endpoint must be an HTTPS OTLP/HTTP base URL");
         }
+        const endpointUrl = new URL(endpoint);
+        if (endpointUrl.username || endpointUrl.password || endpointUrl.search || endpointUrl.hash) {
+            throw new Error("endpoint must not contain credentials, query parameters, or a fragment");
+        }
         const collectorVersion = core.getInput("collector-version").trim();
         if (!/^\d+\.\d+\.\d+$/.test(collectorVersion)) {
             throw new Error("collector-version must be a pinned semantic version");
@@ -25979,6 +25983,11 @@ async function main() {
             await (0, devin_oidc_cli_1.installDevinOidcCli)();
         }
         const resourceAttributes = parsePairs(core.getInput("resource-attributes"), "resource-attributes");
+        for (const key of Object.keys(resourceAttributes)) {
+            if (key.startsWith("devin.") || key === "host.id" || key === "host.boot.id" || key === "os.type") {
+                throw new Error(`resource-attributes cannot override reserved identity attribute '${key}'`);
+            }
+        }
         const platformConfig = configuration(platform);
         const temporaryDirectory = process.env.RUNNER_TEMP || process.cwd();
         (0, fs_1.mkdirSync)(temporaryDirectory, { recursive: true });

@@ -46,4 +46,6 @@ As a compatibility fallback, secret headers can be supplied through `headers-env
 
 The receiving SIEM is the trust boundary. It must authenticate the credential's assigned tenant instead of trusting resource attributes, impose request and per-tenant volume limits, reject unexpected signal types, and retain the unmodified credential identity alongside the logs.
 
+This is centralized observability, not a tamper-proof boundary inside the VM: Devin sessions have root or Administrator access and can alter endpoint logs, stop the collector, or exhaust its queue.
+
 `0.160.0` is only a default pin; set a version your security team has validated. The action downloads the matching release artifact from `open-telemetry/opentelemetry-collector-releases`.
