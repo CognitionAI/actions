@@ -56,7 +56,7 @@ stream_unified() {
     current_size=$(wc -c < "$unified_log")
   /usr/bin/log stream --style ndjson --level info --predicate 'process != "otelcol-contrib"' |
       LC_ALL=C /usr/bin/awk -v path="$unified_log" -v max_bytes=67108864 -v bytes="$current_size" '
-        {
+        /^[[:space:]]*\{/ {
           record_bytes = length($0) + 1
           if (bytes + record_bytes > max_bytes) {
             close(path)
