@@ -40,6 +40,14 @@ jobs:
             exit 1
           fi
           echo "All Node.js actions have dist/index.js"
+      - name: Verify generated action bundles are committed
+        run: |
+          if [ -n "$(git status --porcelain --untracked-files=all -- ':(glob)**/dist/**')" ]; then
+            echo "::error::Action bundles are out of date. Run npm ci && npm run build and commit the generated dist files."
+            git diff --stat -- ':(glob)**/dist/**'
+            git status --short --untracked-files=all -- ':(glob)**/dist/**'
+            exit 1
+          fi
 
   validate-actions:
     runs-on: ubuntu-latest

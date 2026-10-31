@@ -43,3 +43,9 @@ devin-oidc token \
 Your service must be configured to trust Devin as an OIDC identity provider and accept the requested audience.
 
 See the [`setup-devin-oidc` action documentation](./setup-devin-oidc/README.md) for command options and configuration details.
+
+## Development
+
+Use Node.js 20 and install dependencies with `npm ci`. After changing action source or build dependencies, run `npm run lint` and `npm run build`, then commit the generated `dist/` files alongside the source changes.
+
+CI rebuilds every Node.js action and fails if any generated bundle or license file differs from the committed version, or if a generated file is untracked.
