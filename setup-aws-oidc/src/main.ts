@@ -21,7 +21,7 @@ function credentialHelperScript(inputs: {
   return `#!/usr/bin/env bash
 set -euo pipefail
 token=$(devin-oidc token --audience "${inputs.audience}" --subject-keys "${inputs.subjectKeys}")
-exec env -u AWS_PROFILE -u AWS_DEFAULT_PROFILE AWS_CONFIG_FILE=/dev/null aws sts assume-role-with-web-identity \\
+exec env -u AWS_PROFILE -u AWS_DEFAULT_PROFILE AWS_CONFIG_FILE=/dev/null AWS_EC2_METADATA_DISABLED=true aws sts assume-role-with-web-identity \\
   --role-arn "${inputs.roleArn}" \\
   --role-session-name "${inputs.sessionName}" \\
   --web-identity-token "$token" \\
