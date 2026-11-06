@@ -25683,20 +25683,20 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(7484));
+const exec = __importStar(__nccwpck_require__(5236));
 const fs = __importStar(__nccwpck_require__(9896));
 const path = __importStar(__nccwpck_require__(6928));
 const drs_1 = __nccwpck_require__(1581);
 const devin_oidc_cli_1 = __nccwpck_require__(7881);
+const cacheHelper = "/usr/local/bin/devin-oidc-aws-cache.py";
 function credentialHelperScript(inputs) {
-    // The exchanged OIDC token is short-lived (~1 minute), so a static
-    // web_identity_token_file would go stale. credential_process is re-run by
-    // the AWS CLI/SDKs whenever the assumed-role credentials expire, fetching a
-    // fresh token each time. AssumeRoleWithWebIdentity is unsigned, so the
-    // helper needs no pre-existing AWS credentials. The inner call runs with an
-    // empty config and no profile selection so it cannot recurse into (or fail
-    // to resolve) the profile it is providing credentials for.
+    // The cache calls this same helper with --fetch on a miss. Keep the STS
+    // configuration independent of the profile it provides credentials for.
     return `#!/usr/bin/env bash
 set -euo pipefail
+if [[ "\${1:-}" != --fetch && -r /proc/sys/kernel/random/boot_id ]] && command -v python3 >/dev/null; then
+  exec python3 -I "${cacheHelper}" "$0"
+fi
 token=$(devin-oidc token --audience "${inputs.audience}" --subject-keys "${inputs.subjectKeys}")
 exec env -u AWS_PROFILE -u AWS_DEFAULT_PROFILE AWS_CONFIG_FILE=/dev/null AWS_EC2_METADATA_DISABLED=true aws sts assume-role-with-web-identity \\
   --role-arn "${inputs.roleArn}" \\
@@ -25737,6 +25737,9 @@ async function main() {
         const durationSeconds = core.getInput("duration-seconds") || "3600";
         const setDefaultProfile = core.getInput("set-default-profile") === "true";
         await (0, devin_oidc_cli_1.installDevinOidcCli)();
+        await exec.exec("sudo", [
+            "install", "-m", "644", path.join(__dirname, "../credential-cache.py"), cacheHelper,
+        ]);
         const helperPath = `/usr/local/bin/devin-oidc-aws-credentials-${profile}`;
         await (0, drs_1.writeFileWithSudo)(helperPath, credentialHelperScript({ roleArn, audience, subjectKeys, sessionName, durationSeconds }));
         await (0, drs_1.run)(`sudo chmod 755 "${helperPath}"`);
