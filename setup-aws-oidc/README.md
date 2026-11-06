@@ -50,6 +50,20 @@ AWS_PROFILE=devin aws sts get-caller-identity
 
 Set `set-default-profile: "true"` to also configure `[default]` with the same helper, so commands that select no profile work too. An existing `[default]` section is left unchanged.
 
+## Credential cache
+
+In a Linux session, processes that use the same profile share one STS call.
+The helper fetches again when the Devin token rotates, the helper configuration
+changes, or AWS credentials have 15 minutes or less left. A failed fetch is
+not cached.
+
+The helper stores only encrypted credentials in a private directory on
+`/dev/shm` (tmpfs). The key depends on the current signed Devin token and the
+boot ID. There is no disk fallback. Snapshot builds, blueprint author sessions,
+and custom exchange or STS endpoints use the uncached helper. Caching is
+optional: if Python 3.7+, its `cryptography` module, or tmpfs is unavailable,
+the helper still works without a cache.
+
 ## AWS prerequisites
 
 An AWS administrator must:

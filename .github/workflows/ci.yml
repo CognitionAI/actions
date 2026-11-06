@@ -26,6 +26,10 @@ jobs:
           node-version: "20"
       - run: npm ci
       - run: npm run build
+      - name: Test AWS credential cache
+        run: |
+          sudo apt-get install -y python3-cryptography
+          /usr/bin/python3 setup-aws-oidc/test_credential_cache.py
       - name: Verify dist/index.js for Node.js actions
         run: |
           MISSING=0
