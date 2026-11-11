@@ -45,7 +45,7 @@ Any other value fails the build immediately, before anything is downloaded, and 
 
 **Windows** ([`scripts/install.ps1`](./scripts/install.ps1), [`scripts/wait.ps1`](./scripts/wait.ps1))
 
-1. Does nothing if `nvidia-smi` already reports the requested version.
+1. Does nothing if `nvidia-smi` already reports the requested version for every card.
 2. Downloads the installer and fails on a checksum mismatch.
 3. Extracts it with 7-Zip. If the VM has no 7-Zip, the action downloads 7-Zip's standalone `7zr.exe` (also checked against a pinned SHA256).
 4. Adds the driver to the driver store and installs it on the card with `pnputil`.

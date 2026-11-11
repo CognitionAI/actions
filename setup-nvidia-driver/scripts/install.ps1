@@ -23,8 +23,9 @@ $version = $env:NVIDIA_DRIVER_VERSION
 $smi = 'C:\Windows\System32\nvidia-smi.exe'
 if (Test-Path $smi) {
     $ErrorActionPreference = 'Continue'
-    $bound = & $smi --query-gpu=driver_version --format=csv,noheader 2>&1
-    if ($LASTEXITCODE -eq 0 -and "$bound".Trim() -eq $version) {
+    # One line per card.
+    $bound = @(& $smi --query-gpu=driver_version --format=csv,noheader 2>&1 | ForEach-Object { "$_".Trim() } | Where-Object { $_ })
+    if ($LASTEXITCODE -eq 0 -and $bound.Count -gt 0 -and @($bound | Where-Object { $_ -ne $version }).Count -eq 0) {
         Write-Host "NVIDIA driver $version is already bound"
         exit 0
     }
