@@ -25692,11 +25692,12 @@ const cacheHelper = "/usr/local/bin/devin-oidc-aws-cache.py";
 function credentialHelperScript(inputs) {
     // The cache calls this same helper with --fetch on a miss. Keep the STS
     // configuration independent of the profile it provides credentials for.
+    const cacheLookup = `if [[ "\${1:-}" != --fetch && -r /proc/sys/kernel/random/boot_id && -r "${cacheHelper}" ]] && command -v python3 >/dev/null; then
+  exec python3 -I "${cacheHelper}" "$0"
+fi`;
     return `#!/usr/bin/env bash
 set -euo pipefail
-if [[ "\${1:-}" != --fetch && -r /proc/sys/kernel/random/boot_id && -r "${cacheHelper}" ]] && command -v python3 >/dev/null; then
-  exec python3 -I "${cacheHelper}" "$0"
-fi
+${inputs.cacheCredentials ? cacheLookup : ""}
 token=$(devin-oidc token --audience "${inputs.audience}" --subject-keys "${inputs.subjectKeys}")
 exec env -u AWS_PROFILE -u AWS_DEFAULT_PROFILE AWS_CONFIG_FILE=/dev/null AWS_EC2_METADATA_DISABLED=true aws sts assume-role-with-web-identity \\
   --role-arn "${inputs.roleArn}" \\
@@ -25735,13 +25736,16 @@ async function main() {
         const subjectKeys = core.getInput("subject-keys") || "org_id";
         const sessionName = core.getInput("session-name") || "devin";
         const durationSeconds = core.getInput("duration-seconds") || "3600";
+        const cacheCredentials = core.getInput("cache-credentials") === "true";
         const setDefaultProfile = core.getInput("set-default-profile") === "true";
         await (0, devin_oidc_cli_1.installDevinOidcCli)();
-        await exec.exec("sudo", [
-            "install", "-m", "644", path.join(__dirname, "../credential-cache.py"), cacheHelper,
-        ]);
+        if (cacheCredentials) {
+            await exec.exec("sudo", [
+                "install", "-m", "644", path.join(__dirname, "../credential-cache.py"), cacheHelper,
+            ]);
+        }
         const helperPath = `/usr/local/bin/devin-oidc-aws-credentials-${profile}`;
-        await (0, drs_1.writeFileWithSudo)(helperPath, credentialHelperScript({ roleArn, audience, subjectKeys, sessionName, durationSeconds }));
+        await (0, drs_1.writeFileWithSudo)(helperPath, credentialHelperScript({ roleArn, audience, subjectKeys, sessionName, durationSeconds, cacheCredentials }));
         await (0, drs_1.run)(`sudo chmod 755 "${helperPath}"`);
         appendProfile(profile, helperPath, region);
         if (setDefaultProfile && profile !== "default")
