@@ -18,8 +18,12 @@ sudo -E apt-get install -y -o Dpkg::Options::=--force-confold \
 # dkms must have built the module for the running kernel.
 modinfo -k "$kernel" nvidia > /dev/null
 
+# Installing the packages does not load the module, and nvidia-smi cannot
+# answer until it is loaded.
+sudo modprobe nvidia
+
 # A kernel upgrade would boot a kernel the module was not built for.
 # shellcheck disable=SC2046
 sudo apt-mark hold $(dpkg-query -W -f='${db:Status-Abbrev} ${binary:Package}\n' |
-    awk '$1 == "ii" && $2 ~ /^(linux-image|linux-headers|linux-modules)-/ { print $2 }')
+    awk '$1 ~ /^[ih]i$/ && $2 ~ /^(linux-image|linux-headers|linux-modules)-/ { print $2 }')
 echo "NVIDIA driver installed: $NVIDIA_DRIVER_PACKAGES"
