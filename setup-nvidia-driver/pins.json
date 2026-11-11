@@ -1,0 +1,24 @@
+{
+  "linux": {
+    "default": "580",
+    "versions": {
+      "580": {
+        "packages": ["nvidia-driver-580-server", "nvidia-utils-580-server"]
+      }
+    }
+  },
+  "win32": {
+    "default": "596.86",
+    "versions": {
+      "596.86": {
+        "url": "https://ec2-windows-nvidia-drivers.s3.amazonaws.com/grid-20.2/596.86__grid_win10_win11_server2022_server2025_dch_64bit_international_aws_swl.exe",
+        "sha256": "e847099942f9e17e859fc151e725aeab9d23639c54d976a651732691b5fca6a1"
+      }
+    }
+  },
+  "7zr": {
+    "version": "26.05",
+    "url": "https://github.com/ip7z/7zip/releases/download/26.05/7zr.exe",
+    "sha256": "9bf582b894dfa665f852d7e9112b02290a1c303c2d95a21fcdc41ffcb03143b7"
+  }
+}
