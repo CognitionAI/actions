@@ -1,6 +1,6 @@
 # Cognition Actions
 
-Reusable actions for Devin blueprints: short-lived access to services through OpenID Connect (OIDC) without storing long-lived credentials in Devin, and security tooling for the Devin VM image.
+Reusable actions for Devin blueprints: short-lived access to services through OpenID Connect (OIDC) without storing long-lived credentials in Devin, plus security tooling and GPU drivers for the Devin VM image.
 
 These actions are intended for the `initialize` section of a Devin environment blueprint.
 
@@ -16,6 +16,7 @@ These actions are intended for the `initialize` section of a Devin environment b
 | [`setup-infisical-oidc`](./setup-infisical-oidc/README.md) | Configure Infisical CLI authentication with Devin OIDC |
 | [`setup-azure-oidc`](./setup-azure-oidc/README.md) | Configure Azure CLI and Azure SDK authentication with Devin OIDC |
 | [`setup-crowdstrike-falcon`](./setup-crowdstrike-falcon/README.md) | Install the CrowdStrike Falcon EDR sensor into the VM image (golden-image mode) |
+| [`setup-nvidia-driver`](./setup-nvidia-driver/README.md) | Install a pinned NVIDIA driver on a GPU VM and wait for `nvidia-smi` before the snapshot is taken |
 
 ## `setup-devin-oidc`
 

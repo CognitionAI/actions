@@ -4,7 +4,8 @@
   "description": "Reusable actions for authenticating Devin sessions with OIDC",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "node --import tsx --test */test/*.test.ts"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
@@ -13,6 +14,7 @@
   "devDependencies": {
     "@types/node": "^20.17.0",
     "@vercel/ncc": "^0.38.3",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.0"
   }
 }

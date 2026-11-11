@@ -1,0 +1,15 @@
+name: "Set up NVIDIA driver"
+description: "Install a pinned NVIDIA driver on a Devin VM with an NVIDIA GPU, then wait until nvidia-smi answers, so the snapshot is taken with the driver bound. Linux and Windows. Use in the initialize section of your blueprint."
+category: "GPU"
+inputs:
+  version:
+    description: "Driver version, one of the versions pinned for the VM's platform (Windows: 596.86, Linux: 580). Quote the value. Empty installs the platform's default."
+    required: false
+    default: ""
+  timeout-seconds:
+    description: "How long to wait for nvidia-smi to answer after the install"
+    required: false
+    default: "600"
+runs:
+  using: "node20"
+  main: "dist/index.js"
