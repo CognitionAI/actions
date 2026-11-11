@@ -54,7 +54,7 @@ Any other value fails the build immediately, before anything is downloaded, and 
 
 ## Requirements
 
-- The VM must have an NVIDIA GPU. Without one the install runs and the wait then fails after `timeout-seconds`.
+- The VM must have an NVIDIA GPU. Without one the build fails: on Linux when the module is loaded (`could not insert 'nvidia': No such device`), on Windows when the wait reaches `timeout-seconds`.
 - Linux: Ubuntu, booted on a kernel whose `linux-headers-$(uname -r)` package is available from apt.
 - Windows: outbound HTTPS to the installer's host in [`pins.json`](./pins.json), and to `github.com` and `release-assets.githubusercontent.com` when the VM has no 7-Zip.
 
