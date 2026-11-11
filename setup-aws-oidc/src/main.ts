@@ -18,7 +18,7 @@ function credentialHelperScript(inputs: {
   // configuration independent of the profile it provides credentials for.
   return `#!/usr/bin/env bash
 set -euo pipefail
-if [[ "\${1:-}" != --fetch && -r /proc/sys/kernel/random/boot_id ]] && command -v python3 >/dev/null; then
+if [[ "\${1:-}" != --fetch && -r /proc/sys/kernel/random/boot_id && -r "${cacheHelper}" ]] && command -v python3 >/dev/null; then
   exec python3 -I "${cacheHelper}" "$0"
 fi
 token=$(devin-oidc token --audience "${inputs.audience}" --subject-keys "${inputs.subjectKeys}")

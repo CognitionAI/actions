@@ -30,6 +30,20 @@ jobs:
         run: |
           sudo apt-get install -y python3-cryptography
           /usr/bin/python3 setup-aws-oidc/test_credential_cache.py
+      - name: Install AWS test profile
+        uses: ./setup-aws-oidc
+        with:
+          role-arn: arn:aws:iam::000000000000:role/test
+          profile: fallback-test
+      - name: Fetch without the installed cache script
+        run: |
+          sudo rm /usr/local/bin/devin-oidc-aws-cache.py
+          bin=$(mktemp -d)
+          printf '%s\n' '#!/bin/sh' 'test "$1" = token && echo fixture-token' > "$bin/devin-oidc"
+          printf '%s\n' '#!/bin/sh' 'test "$1 $2" = "sts assume-role-with-web-identity" && echo fixture-response' > "$bin/aws"
+          chmod +x "$bin/devin-oidc" "$bin/aws"
+          export PATH="$bin:$PATH"
+          test "$(devin-oidc-aws-credentials-fallback-test)" = fixture-response
       - name: Verify dist/index.js for Node.js actions
         run: |
           MISSING=0
