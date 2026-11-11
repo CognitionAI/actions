@@ -43,7 +43,7 @@ test("installs the pinned packages for the running kernel, holds the kernel, the
   assert.deepEqual(log, [
     "apt-get update",
     "apt-get install -y -o Dpkg::Options::=--force-confold linux-headers-6.8.0-100-generic dkms" +
-      " nvidia-driver-580-server nvidia-utils-580-server xserver-xorg-core mesa-utils",
+      " nvidia-driver-580-server nvidia-utils-580-server",
     "apt-mark hold linux-image-6.8.0-100-generic linux-headers-6.8.0-100-generic",
   ]);
   assert.match(stdout, /NVIDIA driver bound: Test GPU/);

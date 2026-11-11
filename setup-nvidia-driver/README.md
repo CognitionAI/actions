@@ -38,7 +38,7 @@ Any other value fails the build immediately, before anything is downloaded, and 
 **Linux** ([`scripts/install.sh`](./scripts/install.sh), [`scripts/wait.sh`](./scripts/wait.sh))
 
 1. Does nothing if `nvidia-smi` already answers.
-2. Installs the driver packages with the running kernel's headers and `dkms`, plus `xserver-xorg-core` and `mesa-utils` so the desktop can render on the card.
+2. Installs the driver packages with the running kernel's headers and `dkms`.
 3. Fails if the `nvidia` module was not built for the running kernel.
 4. Puts the installed kernel packages on hold (`apt-mark hold`), because a kernel upgrade would boot a kernel the module was not built for.
 5. Polls `nvidia-smi` every 5 seconds until it answers or `timeout-seconds` passes.
