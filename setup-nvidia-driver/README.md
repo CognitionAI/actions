@@ -40,8 +40,9 @@ Any other value fails the build immediately, before anything is downloaded, and 
 1. Does nothing if `nvidia-smi` already answers.
 2. Installs the driver packages with the running kernel's headers and `dkms`.
 3. Fails if the `nvidia` module was not built for the running kernel.
-4. Puts the installed kernel packages on hold (`apt-mark hold`), because a kernel upgrade would boot a kernel the module was not built for.
-5. Polls `nvidia-smi` every 5 seconds until it answers or `timeout-seconds` passes.
+4. Loads the module (`modprobe nvidia`), because installing the packages does not.
+5. Puts the installed kernel packages on hold (`apt-mark hold`), because a kernel upgrade would boot a kernel the module was not built for.
+6. Polls `nvidia-smi` every 5 seconds until it answers or `timeout-seconds` passes.
 
 **Windows** ([`scripts/install.ps1`](./scripts/install.ps1), [`scripts/wait.ps1`](./scripts/wait.ps1))
 
@@ -53,7 +54,7 @@ Any other value fails the build immediately, before anything is downloaded, and 
 
 ## Requirements
 
-- The VM must have an NVIDIA GPU. Without one the install runs and the wait then fails after `timeout-seconds`.
+- The VM must have an NVIDIA GPU. Without one the build fails: on Linux when the module is loaded (`could not insert 'nvidia': No such device`), on Windows when the wait reaches `timeout-seconds`.
 - Linux: Ubuntu, booted on a kernel whose `linux-headers-$(uname -r)` package is available from apt.
 - Windows: outbound HTTPS to the installer's host in [`pins.json`](./pins.json), and to `github.com` and `release-assets.githubusercontent.com` when the VM has no 7-Zip.
 

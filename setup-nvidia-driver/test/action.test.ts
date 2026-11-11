@@ -10,12 +10,13 @@ import test from "node:test";
 const DIST = resolve(__dirname, "..", "dist", "index.js");
 
 const STUBS: Record<string, string> = {
-  // Answers once the packages are "installed", or always when the image came with a driver.
-  "nvidia-smi": '[ -e "$STUB_DIR/installed" ] || [ "${STUB_PREINSTALLED:-0}" = 1 ] || exit 9\necho "Test GPU, 580.178.04, 00000000:01:00.0"',
+  // Answers once the installed module is loaded, or always when the image came with a driver.
+  "nvidia-smi": '[ -e "$STUB_DIR/loaded" ] || [ "${STUB_PREINSTALLED:-0}" = 1 ] || exit 9\necho "Test GPU, 580.178.04, 00000000:01:00.0"',
   sudo: 'while [ "${1#-}" != "$1" ]; do shift; done\nexec "$@"',
   "apt-get": 'echo "apt-get $*" >> "$STUB_DIR/log"\n[ "$1" = install ] && [ "${STUB_DRIVER_ANSWERS:-1}" = 1 ] && touch "$STUB_DIR/installed"\nexit 0',
   modinfo: 'exit "${STUB_MODINFO_EXIT:-0}"',
-  "dpkg-query": 'printf "ii  linux-image-6.8.0-100-generic\\nii  linux-headers-6.8.0-100-generic\\nii  bash\\nrc  linux-image-5.15.0-1\\n"',
+  modprobe: 'echo "modprobe $*" >> "$STUB_DIR/log"\n[ -e "$STUB_DIR/installed" ] && touch "$STUB_DIR/loaded"\nexit 0',
+  "dpkg-query": 'printf "ii  linux-image-6.8.0-100-generic\\nhi  linux-headers-6.8.0-100-generic\\nii  bash\\nrc  linux-image-5.15.0-1\\n"',
   "apt-mark": 'echo "apt-mark $*" >> "$STUB_DIR/log"',
   uname: "echo 6.8.0-100-generic",
   sleep: "exit 0",
@@ -44,6 +45,7 @@ test("installs the pinned packages for the running kernel, holds the kernel, the
     "apt-get update",
     "apt-get install -y -o Dpkg::Options::=--force-confold linux-headers-6.8.0-100-generic dkms" +
       " nvidia-driver-580-server nvidia-utils-580-server",
+    "modprobe nvidia",
     "apt-mark hold linux-image-6.8.0-100-generic linux-headers-6.8.0-100-generic",
   ]);
   assert.match(stdout, /NVIDIA driver bound: Test GPU/);
