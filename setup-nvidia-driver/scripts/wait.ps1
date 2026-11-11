@@ -1,8 +1,7 @@
-# Holds the build until the pinned NVIDIA driver answers for the passed-through
-# card. An older driver that still answers means the install did not take.
-# Windows installs the driver for the card's PCI address in the background on
-# the first boot that sees it; an image taken before that finishes has no bound
-# driver, and every VM booted from it repeats the install.
+# Holds the build until the pinned NVIDIA driver answers for every card. An
+# older driver that still answers means the install did not take. Windows can
+# finish a driver install in the background; a snapshot taken before that has
+# no bound driver.
 $ErrorActionPreference = 'Continue'
 $smi = 'C:\Windows\System32\nvidia-smi.exe'
 $version = $env:NVIDIA_DRIVER_VERSION

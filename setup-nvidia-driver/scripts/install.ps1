@@ -1,8 +1,7 @@
-# Installs AWS's GRID build of the NVIDIA driver on a VM with a passed-through
-# card. GRID brings a Tesla T4 up in WDDM, so the desktop, DirectX and the
-# browser render on it, and CUDA works. The installer is a self-extracting
-# 7-Zip archive; pnputil adds its INFs to the driver store and installs them
-# on the card.
+# Installs the pinned GRID build of the NVIDIA driver. GRID runs the card in
+# WDDM mode, so the desktop, DirectX and the browser render on it, and CUDA
+# works. The installer is a self-extracting 7-Zip archive; pnputil adds its
+# INFs to the driver store and installs them on the card.
 
 # A failed cmdlet stops the script. The progress bar slows a large download
 # and is noise in a build log.

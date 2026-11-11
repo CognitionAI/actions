@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs Ubuntu's NVIDIA server driver on a VM with a passed-through card:
+# Installs Ubuntu's NVIDIA server driver:
 # the packages in $NVIDIA_DRIVER_PACKAGES, the running kernel's headers and
 # dkms to build the module for it, and Xorg, which the driver's X module needs
 # to render the desktop on the card.

@@ -1,6 +1,6 @@
 # `setup-nvidia-driver`
 
-Installs a pinned NVIDIA driver on a Devin VM that has a GPU passed through to it, then waits until `nvidia-smi` answers. The snapshot is taken after the action returns, so every session VM booted from it starts with the driver already bound to the card.
+Installs a pinned NVIDIA driver on a Devin VM that has an NVIDIA GPU, then waits until `nvidia-smi` answers. The snapshot is taken after the action returns, so sessions start with the driver already bound to the card.
 
 Works on Linux and Windows VMs.
 
@@ -28,7 +28,7 @@ Quote `version`. YAML reads an unquoted `596.80` as the number `596.8`, so the a
 
 | Platform | `version` | What is installed |
 | --- | --- | --- |
-| Windows | `596.86` | AWS's GRID 20.2 build of the driver, downloaded from AWS's driver bucket and checked against a pinned SHA256 |
+| Windows | `596.86` | The GRID 20.2 build of the driver, downloaded from the URL in `pins.json` and checked against a pinned SHA256 |
 | Linux (Ubuntu) | `580` | Ubuntu's `nvidia-driver-580-server` and `nvidia-utils-580-server` packages, at the point release apt currently serves |
 
 Any other value fails the build immediately, before anything is downloaded, and the error lists the supported versions. The pins are in [`pins.json`](./pins.json); the repository holds URLs and checksums only, never an installer.
@@ -53,11 +53,11 @@ Any other value fails the build immediately, before anything is downloaded, and 
 
 ## Requirements
 
-- The VM must have an NVIDIA GPU passed through. Without one the install runs and the wait then fails after `timeout-seconds`.
+- The VM must have an NVIDIA GPU. Without one the install runs and the wait then fails after `timeout-seconds`.
 - Linux: Ubuntu, booted on a kernel whose `linux-headers-$(uname -r)` package is available from apt.
-- Windows: outbound HTTPS to `ec2-windows-nvidia-drivers.s3.amazonaws.com`, and to `github.com` and `release-assets.githubusercontent.com` when the VM has no 7-Zip.
+- Windows: outbound HTTPS to the installer's host in [`pins.json`](./pins.json), and to `github.com` and `release-assets.githubusercontent.com` when the VM has no 7-Zip.
 
 ## Notes
 
-- A build that inherits `initialize` from an earlier snapshot does not run the action again, so that build does not wait for `nvidia-smi`. It boots from an image that already has the driver bound.
+- A build that inherits `initialize` from an earlier snapshot does not run the action again, so that build does not wait for `nvidia-smi`. It starts from a snapshot that already has the driver bound.
 - Adding a version is one entry in `pins.json`: the download URL and SHA256 on Windows, the apt package names on Linux.

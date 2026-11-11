@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Holds the build until the NVIDIA driver answers for the passed-through card.
+# Holds the build until the NVIDIA driver answers.
 timeout="$NVIDIA_WAIT_TIMEOUT_SECONDS"
 deadline=$((SECONDS + timeout))
 answer="nvidia-smi is not installed"

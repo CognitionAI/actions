@@ -11,13 +11,13 @@ const DIST = resolve(__dirname, "..", "dist", "index.js");
 
 const STUBS: Record<string, string> = {
   // Answers once the packages are "installed", or always when the image came with a driver.
-  "nvidia-smi": '[ -e "$STUB_DIR/installed" ] || [ "${STUB_PREINSTALLED:-0}" = 1 ] || exit 9\necho "Tesla T4, 580.178.04, 00000001:00:01.0"',
+  "nvidia-smi": '[ -e "$STUB_DIR/installed" ] || [ "${STUB_PREINSTALLED:-0}" = 1 ] || exit 9\necho "Test GPU, 580.178.04, 00000000:01:00.0"',
   sudo: 'while [ "${1#-}" != "$1" ]; do shift; done\nexec "$@"',
   "apt-get": 'echo "apt-get $*" >> "$STUB_DIR/log"\n[ "$1" = install ] && [ "${STUB_DRIVER_ANSWERS:-1}" = 1 ] && touch "$STUB_DIR/installed"\nexit 0',
   modinfo: 'exit "${STUB_MODINFO_EXIT:-0}"',
-  "dpkg-query": 'printf "ii  linux-image-6.8.0-1060-aws\\nii  linux-headers-6.8.0-1060-aws\\nii  bash\\nrc  linux-image-5.15.0-1\\n"',
+  "dpkg-query": 'printf "ii  linux-image-6.8.0-100-generic\\nii  linux-headers-6.8.0-100-generic\\nii  bash\\nrc  linux-image-5.15.0-1\\n"',
   "apt-mark": 'echo "apt-mark $*" >> "$STUB_DIR/log"',
-  uname: "echo 6.8.0-1060-aws",
+  uname: "echo 6.8.0-100-generic",
   sleep: "exit 0",
 };
 
@@ -42,11 +42,11 @@ test("installs the pinned packages for the running kernel, holds the kernel, the
   assert.equal(status, 0, stdout);
   assert.deepEqual(log, [
     "apt-get update",
-    "apt-get install -y -o Dpkg::Options::=--force-confold linux-headers-6.8.0-1060-aws dkms" +
+    "apt-get install -y -o Dpkg::Options::=--force-confold linux-headers-6.8.0-100-generic dkms" +
       " nvidia-driver-580-server nvidia-utils-580-server xserver-xorg-core mesa-utils",
-    "apt-mark hold linux-image-6.8.0-1060-aws linux-headers-6.8.0-1060-aws",
+    "apt-mark hold linux-image-6.8.0-100-generic linux-headers-6.8.0-100-generic",
   ]);
-  assert.match(stdout, /NVIDIA driver bound: Tesla T4/);
+  assert.match(stdout, /NVIDIA driver bound: Test GPU/);
 });
 
 test("installs nothing when the driver already answers", linuxOnly, () => {
