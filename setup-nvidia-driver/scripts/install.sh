@@ -19,7 +19,8 @@ sudo -E apt-get install -y -o Dpkg::Options::=--force-confold \
 modinfo -k "$kernel" nvidia > /dev/null
 
 # Installing the packages does not load the module, and nvidia-smi cannot
-# answer until it is loaded.
+# answer until it is loaded. Once it is, the driver package's udev rules load
+# nvidia-modeset, nvidia-drm and nvidia-uvm and create the device nodes.
 sudo modprobe nvidia
 
 # A kernel upgrade would boot a kernel the module was not built for.
