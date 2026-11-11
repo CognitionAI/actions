@@ -29,6 +29,10 @@ inputs:
     description: "Duration of the assumed-role session in seconds"
     required: false
     default: "3600"
+  cache-credentials:
+    description: "Reuse temporary AWS credentials for this profile within a Linux Devin session"
+    required: false
+    default: "false"
   set-default-profile:
     description: "When 'profile' is not 'default', also configure [default] to use the same credential helper (skipped if [default] already exists)"
     required: false

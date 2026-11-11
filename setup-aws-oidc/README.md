@@ -29,6 +29,7 @@ aws sts get-caller-identity
 | `subject-keys` | No | `org_id` | Space-delimited Devin claims used to form the token subject |
 | `session-name` | No | `devin` | AWS role session name |
 | `duration-seconds` | No | `3600` | Assumed-role session duration, subject to the role maximum |
+| `cache-credentials` | No | `false` | Reuse temporary AWS credentials for this profile on supported Linux VMs |
 | `set-default-profile` | No | `false` | When `profile` is not `default`, also point `[default]` at the same helper |
 
 To use a named profile:
@@ -49,6 +50,24 @@ AWS_PROFILE=devin aws sts get-caller-identity
 ```
 
 Set `set-default-profile: "true"` to also configure `[default]` with the same helper, so commands that select no profile work too. An existing `[default]` section is left unchanged.
+
+## Credential cache
+
+By default, the helper fetches credentials from AWS on each call. To enable
+the local cache, set `cache-credentials: "true"` under `with` for that profile.
+On supported Linux VMs, processes that use the profile then share one STS call.
+To turn caching off, rerun the action for the same profile with the input set
+to `"false"` or omitted.
+The helper fetches again when the Devin token rotates, the helper configuration
+changes, or AWS credentials have 15 minutes or less left. A failed fetch is
+not cached.
+
+The helper stores only encrypted credentials in a private directory on
+`/dev/shm` (tmpfs). The key depends on the current signed Devin token and the
+boot ID. There is no disk fallback. Snapshot builds, blueprint author sessions,
+and custom exchange or STS endpoints use the uncached helper. Caching is
+optional: if Python 3.7+, its `cryptography` module, or tmpfs is unavailable,
+the helper still works without a cache.
 
 ## AWS prerequisites
 
