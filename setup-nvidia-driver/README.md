@@ -55,7 +55,7 @@ Any other value fails the build immediately, before anything is downloaded, and 
 
 - The VM must have an NVIDIA GPU passed through. Without one the install runs and the wait then fails after `timeout-seconds`.
 - Linux: Ubuntu, booted on a kernel whose `linux-headers-$(uname -r)` package is available from apt.
-- Windows: outbound HTTPS to `ec2-windows-nvidia-drivers.s3.amazonaws.com`, and to `github.com` when the VM has no 7-Zip.
+- Windows: outbound HTTPS to `ec2-windows-nvidia-drivers.s3.amazonaws.com`, and to `github.com` and `release-assets.githubusercontent.com` when the VM has no 7-Zip.
 
 ## Notes
 
