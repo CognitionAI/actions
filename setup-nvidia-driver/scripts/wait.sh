@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-# Holds the build until the NVIDIA driver answers.
+# Holds the build until the NVIDIA driver answers. A VM without a card has
+# nothing to wait for.
+if ! grep -qsx 0x10de "${PCI_DEVICES_DIR:-/sys/bus/pci/devices}"/*/vendor; then
+    echo "No NVIDIA card on this VM: not waiting for nvidia-smi"
+    exit 0
+fi
 timeout="$NVIDIA_WAIT_TIMEOUT_SECONDS"
 deadline=$((SECONDS + timeout))
 answer="nvidia-smi is not installed"
