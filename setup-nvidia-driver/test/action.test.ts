@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
@@ -28,8 +28,11 @@ function runAction(inputs: Record<string, string>, stubEnv: Record<string, strin
     writeFileSync(join(dir, name), `#!/bin/bash\n${body}\n`);
     chmodSync(join(dir, name), 0o755);
   }
+  const card = join(dir, "pci", "0000:01:00.0");
+  mkdirSync(card, { recursive: true });
+  writeFileSync(join(card, "vendor"), stubEnv.STUB_NO_CARD === "1" ? "0x1af4\n" : "0x10de\n");
   const result = spawnSync(process.execPath, [DIST], {
-    env: { PATH: `${dir}:/usr/bin:/bin`, STUB_DIR: dir, ...stubEnv, ...inputs },
+    env: { PATH: `${dir}:/usr/bin:/bin`, STUB_DIR: dir, PCI_DEVICES_DIR: join(dir, "pci"), ...stubEnv, ...inputs },
     encoding: "utf8",
   });
   const log = existsSync(join(dir, "log")) ? readFileSync(join(dir, "log"), "utf8").trim().split("\n") : [];
@@ -49,6 +52,18 @@ test("installs the pinned packages for the running kernel, holds the kernel, the
     "apt-mark hold linux-image-6.8.0-100-generic linux-headers-6.8.0-100-generic",
   ]);
   assert.match(stdout, /NVIDIA driver bound: Test GPU/);
+});
+
+test("without a card, installs and holds the kernel but neither loads the module nor waits", linuxOnly, () => {
+  const { status, stdout, log } = runAction({ "INPUT_TIMEOUT-SECONDS": "1" }, { STUB_NO_CARD: "1" });
+  assert.equal(status, 0, stdout);
+  assert.deepEqual(log, [
+    "apt-get update",
+    "apt-get install -y -o Dpkg::Options::=--force-confold linux-headers-6.8.0-100-generic dkms" +
+      " nvidia-driver-580-server nvidia-utils-580-server",
+    "apt-mark hold linux-image-6.8.0-100-generic linux-headers-6.8.0-100-generic",
+  ]);
+  assert.match(stdout, /not waiting for nvidia-smi/);
 });
 
 test("installs nothing when the driver already answers", linuxOnly, () => {

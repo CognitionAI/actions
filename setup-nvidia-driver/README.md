@@ -1,6 +1,6 @@
 # `setup-nvidia-driver`
 
-Installs a pinned NVIDIA driver on a Devin VM that has an NVIDIA GPU, then waits until `nvidia-smi` answers. The snapshot is taken after the action returns, so sessions start with the driver already bound to the card.
+Installs a pinned NVIDIA driver on a Devin VM. On a VM with an NVIDIA GPU it then waits until `nvidia-smi` answers, so the snapshot is taken with the driver already bound to the card. On a VM without one it installs the driver and returns, and the driver binds when a VM with a card boots the snapshot.
 
 Works on Linux and Windows VMs.
 
@@ -40,23 +40,29 @@ Any other value fails the build immediately, before anything is downloaded, and 
 1. Does nothing if `nvidia-smi` already answers.
 2. Installs the driver packages with the running kernel's headers and `dkms`.
 3. Fails if the `nvidia` module was not built for the running kernel.
-4. Loads the module (`modprobe nvidia`), because installing the packages does not.
+4. With a card: loads the module (`modprobe nvidia`), because installing the packages does not.
 5. Puts the installed kernel packages on hold (`apt-mark hold`), because a kernel upgrade would boot a kernel the module was not built for.
-6. Polls `nvidia-smi` every 5 seconds until it answers or `timeout-seconds` passes.
+6. With a card: polls `nvidia-smi` every 5 seconds until it answers or `timeout-seconds` passes.
 
 **Windows** ([`scripts/install.ps1`](./scripts/install.ps1), [`scripts/wait.ps1`](./scripts/wait.ps1))
 
 1. Does nothing if `nvidia-smi` already reports the requested version for every card.
 2. Downloads the installer and fails on a checksum mismatch.
 3. Extracts it with 7-Zip. If the VM has no 7-Zip, the action downloads 7-Zip's standalone `7zr.exe` (also checked against a pinned SHA256).
-4. Adds the driver to the driver store and installs it on the card with `pnputil`.
-5. Polls `nvidia-smi` every 5 seconds until every card reports the requested version or `timeout-seconds` passes.
+4. Adds the driver to the driver store with `pnputil`, which also installs it on the card when there is one.
+5. With a card: polls `nvidia-smi` every 5 seconds until every card reports the requested version or `timeout-seconds` passes.
 
 ## Requirements
 
-- The VM must have an NVIDIA GPU. Without one the build fails: on Linux when the module is loaded (`could not insert 'nvidia': No such device`), on Windows when the wait reaches `timeout-seconds`.
 - Linux: Ubuntu, booted on a kernel whose `linux-headers-$(uname -r)` package is available from apt.
 - Windows: outbound HTTPS to the installer's host in [`pins.json`](./pins.json), and to `github.com` and `release-assets.githubusercontent.com` when the VM has no 7-Zip.
+
+## Building without a GPU
+
+The build VM does not need a card. A card is an NVIDIA device on the PCI bus (vendor `10de`); without one the action skips steps 4 and 6 on Linux and step 5 on Windows.
+
+- Linux: the module is on disk and loads at boot when the VM has a card.
+- Windows: the driver is in the driver store, and Windows installs it for the card in the background on the first boot with one. `nvidia-smi` does not answer until that install finishes.
 
 ## Notes
 
