@@ -21,7 +21,13 @@ modinfo -k "$kernel" nvidia > /dev/null
 # Installing the packages does not load the module, and nvidia-smi cannot
 # answer until it is loaded. Once it is, the driver package's udev rules load
 # nvidia-modeset, nvidia-drm and nvidia-uvm and create the device nodes.
-sudo modprobe nvidia
+# Without a card the module cannot load: a VM with a card that boots this
+# image loads it at boot from the card's PCI ID.
+if grep -qsx 0x10de "${PCI_DEVICES_DIR:-/sys/bus/pci/devices}"/*/vendor; then
+    sudo modprobe nvidia
+else
+    echo "No NVIDIA card on this VM: installing the driver without loading it"
+fi
 
 # A kernel upgrade would boot a kernel the module was not built for.
 # shellcheck disable=SC2046
