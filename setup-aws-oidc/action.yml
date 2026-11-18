@@ -38,5 +38,29 @@ inputs:
     required: false
     default: "false"
 runs:
-  using: "node24"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - shell: bash
+      env:
+        IN_ROLE_ARN: ${{ inputs.role-arn }}
+        IN_REGION: ${{ inputs.region }}
+        IN_PROFILE: ${{ inputs.profile }}
+        IN_AUDIENCE: ${{ inputs.audience }}
+        IN_SUBJECT_KEYS: ${{ inputs.subject-keys }}
+        IN_SESSION_NAME: ${{ inputs.session-name }}
+        IN_DURATION_SECONDS: ${{ inputs.duration-seconds }}
+        IN_CACHE_CREDENTIALS: ${{ inputs.cache-credentials }}
+        IN_SET_DEFAULT_PROFILE: ${{ inputs.set-default-profile }}
+      run: |
+        command -v node >/dev/null || { echo "::error::setup-aws-oidc needs node on PATH"; exit 1; }
+        env \
+          "INPUT_ROLE-ARN=$IN_ROLE_ARN" \
+          "INPUT_REGION=$IN_REGION" \
+          "INPUT_PROFILE=$IN_PROFILE" \
+          "INPUT_AUDIENCE=$IN_AUDIENCE" \
+          "INPUT_SUBJECT-KEYS=$IN_SUBJECT_KEYS" \
+          "INPUT_SESSION-NAME=$IN_SESSION_NAME" \
+          "INPUT_DURATION-SECONDS=$IN_DURATION_SECONDS" \
+          "INPUT_CACHE-CREDENTIALS=$IN_CACHE_CREDENTIALS" \
+          "INPUT_SET-DEFAULT-PROFILE=$IN_SET_DEFAULT_PROFILE" \
+          node "$GITHUB_ACTION_PATH/dist/index.js"

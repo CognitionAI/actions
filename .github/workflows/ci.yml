@@ -68,7 +68,7 @@ jobs:
         run: |
           MISSING=0
           for dir in */; do
-            if [ -f "$dir/action.yml" ] && grep -q 'using:.*node' "$dir/action.yml" && [ ! -f "$dir/dist/index.js" ]; then
+            if [ -f "$dir/action.yml" ] && grep -qE 'using:.*node|dist/index.js' "$dir/action.yml" && [ ! -f "$dir/dist/index.js" ]; then
               echo "MISSING: $dir/dist/index.js"
               MISSING=$((MISSING + 1))
             fi
