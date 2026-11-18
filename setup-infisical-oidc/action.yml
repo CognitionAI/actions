@@ -26,5 +26,23 @@ inputs:
     required: false
     default: "0.43.110"
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - shell: bash
+      env:
+        IN_INFISICAL_URL: ${{ inputs.infisical-url }}
+        IN_IDENTITY_ID: ${{ inputs.identity-id }}
+        IN_AUDIENCE: ${{ inputs.audience }}
+        IN_SUBJECT_KEYS: ${{ inputs.subject-keys }}
+        IN_INSTALL_INFISICAL_CLI: ${{ inputs.install-infisical-cli }}
+        IN_INFISICAL_CLI_VERSION: ${{ inputs.infisical-cli-version }}
+      run: |
+        command -v node >/dev/null || { echo "::error::setup-infisical-oidc needs node on PATH"; exit 1; }
+        env \
+          "INPUT_INFISICAL-URL=$IN_INFISICAL_URL" \
+          "INPUT_IDENTITY-ID=$IN_IDENTITY_ID" \
+          "INPUT_AUDIENCE=$IN_AUDIENCE" \
+          "INPUT_SUBJECT-KEYS=$IN_SUBJECT_KEYS" \
+          "INPUT_INSTALL-INFISICAL-CLI=$IN_INSTALL_INFISICAL_CLI" \
+          "INPUT_INFISICAL-CLI-VERSION=$IN_INFISICAL_CLI_VERSION" \
+          node "$GITHUB_ACTION_PATH/dist/index.js"

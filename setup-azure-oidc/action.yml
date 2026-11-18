@@ -25,5 +25,23 @@ inputs:
     required: false
     default: "true"
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - shell: bash
+      env:
+        IN_CLIENT_ID: ${{ inputs.client-id }}
+        IN_TENANT_ID: ${{ inputs.tenant-id }}
+        IN_SUBSCRIPTION_ID: ${{ inputs.subscription-id }}
+        IN_AUDIENCE: ${{ inputs.audience }}
+        IN_SUBJECT_KEYS: ${{ inputs.subject-keys }}
+        IN_INSTALL_AZURE_CLI: ${{ inputs.install-azure-cli }}
+      run: |
+        command -v node >/dev/null || { echo "::error::setup-azure-oidc needs node on PATH"; exit 1; }
+        env \
+          "INPUT_CLIENT-ID=$IN_CLIENT_ID" \
+          "INPUT_TENANT-ID=$IN_TENANT_ID" \
+          "INPUT_SUBSCRIPTION-ID=$IN_SUBSCRIPTION_ID" \
+          "INPUT_AUDIENCE=$IN_AUDIENCE" \
+          "INPUT_SUBJECT-KEYS=$IN_SUBJECT_KEYS" \
+          "INPUT_INSTALL-AZURE-CLI=$IN_INSTALL_AZURE_CLI" \
+          node "$GITHUB_ACTION_PATH/dist/index.js"

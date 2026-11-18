@@ -2,5 +2,9 @@ name: "Set up devin-oidc CLI"
 description: "Install the devin-oidc CLI, which exchanges the Devin session's general OIDC token for short-lived audience-scoped tokens (RFC 8693). Use in the initialize section of your blueprint."
 category: "Cloud Access"
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |
+        command -v node >/dev/null || { echo "::error::setup-devin-oidc needs node on PATH"; exit 1; }
+        node "$GITHUB_ACTION_PATH/dist/index.js"

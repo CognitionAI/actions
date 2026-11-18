@@ -11,5 +11,15 @@ inputs:
     required: false
     default: "600"
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - shell: bash
+      env:
+        IN_VERSION: ${{ inputs.version }}
+        IN_TIMEOUT_SECONDS: ${{ inputs.timeout-seconds }}
+      run: |
+        command -v node >/dev/null || { echo "::error::setup-nvidia-driver needs node on PATH"; exit 1; }
+        env \
+          "INPUT_VERSION=$IN_VERSION" \
+          "INPUT_TIMEOUT-SECONDS=$IN_TIMEOUT_SECONDS" \
+          node "$GITHUB_ACTION_PATH/dist/index.js"

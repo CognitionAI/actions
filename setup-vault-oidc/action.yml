@@ -33,5 +33,27 @@ inputs:
     required: false
     default: "1.17.2"
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - shell: bash
+      env:
+        IN_VAULT_ADDR: ${{ inputs.vault-addr }}
+        IN_ROLE: ${{ inputs.role }}
+        IN_AUTH_MOUNT: ${{ inputs.auth-mount }}
+        IN_AUDIENCE: ${{ inputs.audience }}
+        IN_SUBJECT_KEYS: ${{ inputs.subject-keys }}
+        IN_VAULT_NAMESPACE: ${{ inputs.vault-namespace }}
+        IN_INSTALL_VAULT: ${{ inputs.install-vault }}
+        IN_VAULT_VERSION: ${{ inputs.vault-version }}
+      run: |
+        command -v node >/dev/null || { echo "::error::setup-vault-oidc needs node on PATH"; exit 1; }
+        env \
+          "INPUT_VAULT-ADDR=$IN_VAULT_ADDR" \
+          "INPUT_ROLE=$IN_ROLE" \
+          "INPUT_AUTH-MOUNT=$IN_AUTH_MOUNT" \
+          "INPUT_AUDIENCE=$IN_AUDIENCE" \
+          "INPUT_SUBJECT-KEYS=$IN_SUBJECT_KEYS" \
+          "INPUT_VAULT-NAMESPACE=$IN_VAULT_NAMESPACE" \
+          "INPUT_INSTALL-VAULT=$IN_INSTALL_VAULT" \
+          "INPUT_VAULT-VERSION=$IN_VAULT_VERSION" \
+          node "$GITHUB_ACTION_PATH/dist/index.js"
