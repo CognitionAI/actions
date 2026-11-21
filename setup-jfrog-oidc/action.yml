@@ -29,5 +29,25 @@ inputs:
     required: false
     default: "2.72.2"
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - shell: bash
+      env:
+        IN_JFROG_URL: ${{ inputs.jfrog-url }}
+        IN_PROVIDER_NAME: ${{ inputs.provider-name }}
+        IN_AUDIENCE: ${{ inputs.audience }}
+        IN_SUBJECT_KEYS: ${{ inputs.subject-keys }}
+        IN_SERVER_ID: ${{ inputs.server-id }}
+        IN_INSTALL_JFROG_CLI: ${{ inputs.install-jfrog-cli }}
+        IN_JFROG_CLI_VERSION: ${{ inputs.jfrog-cli-version }}
+      run: |
+        command -v node >/dev/null || { echo "::error::setup-jfrog-oidc needs node on PATH"; exit 1; }
+        env \
+          "INPUT_JFROG-URL=$IN_JFROG_URL" \
+          "INPUT_PROVIDER-NAME=$IN_PROVIDER_NAME" \
+          "INPUT_AUDIENCE=$IN_AUDIENCE" \
+          "INPUT_SUBJECT-KEYS=$IN_SUBJECT_KEYS" \
+          "INPUT_SERVER-ID=$IN_SERVER_ID" \
+          "INPUT_INSTALL-JFROG-CLI=$IN_INSTALL_JFROG_CLI" \
+          "INPUT_JFROG-CLI-VERSION=$IN_JFROG_CLI_VERSION" \
+          node "$GITHUB_ACTION_PATH/dist/index.js"

@@ -37,5 +37,29 @@ inputs:
     required: false
     default: "FALCON_PROVISIONING_TOKEN"
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - shell: bash
+      env:
+        IN_CID: ${{ inputs.cid }}
+        IN_CLOUD: ${{ inputs.cloud }}
+        IN_TAGS: ${{ inputs.tags }}
+        IN_SENSOR_VERSION_DECREMENT: ${{ inputs.sensor-version-decrement }}
+        IN_SENSOR_UPDATE_POLICY: ${{ inputs.sensor-update-policy }}
+        IN_BACKEND: ${{ inputs.backend }}
+        IN_CLIENT_ID_ENV: ${{ inputs.client-id-env }}
+        IN_CLIENT_SECRET_ENV: ${{ inputs.client-secret-env }}
+        IN_PROVISIONING_TOKEN_ENV: ${{ inputs.provisioning-token-env }}
+      run: |
+        command -v node >/dev/null || { echo "::error::setup-crowdstrike-falcon needs node on PATH"; exit 1; }
+        env \
+          "INPUT_CID=$IN_CID" \
+          "INPUT_CLOUD=$IN_CLOUD" \
+          "INPUT_TAGS=$IN_TAGS" \
+          "INPUT_SENSOR-VERSION-DECREMENT=$IN_SENSOR_VERSION_DECREMENT" \
+          "INPUT_SENSOR-UPDATE-POLICY=$IN_SENSOR_UPDATE_POLICY" \
+          "INPUT_BACKEND=$IN_BACKEND" \
+          "INPUT_CLIENT-ID-ENV=$IN_CLIENT_ID_ENV" \
+          "INPUT_CLIENT-SECRET-ENV=$IN_CLIENT_SECRET_ENV" \
+          "INPUT_PROVISIONING-TOKEN-ENV=$IN_PROVISIONING_TOKEN_ENV" \
+          node "$GITHUB_ACTION_PATH/dist/index.js"

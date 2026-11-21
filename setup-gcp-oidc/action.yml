@@ -26,5 +26,23 @@ inputs:
     required: false
     default: "true"
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - shell: bash
+      env:
+        IN_WORKLOAD_IDENTITY_PROVIDER: ${{ inputs.workload-identity-provider }}
+        IN_SERVICE_ACCOUNT: ${{ inputs.service-account }}
+        IN_AUDIENCE: ${{ inputs.audience }}
+        IN_SUBJECT_KEYS: ${{ inputs.subject-keys }}
+        IN_PROJECT: ${{ inputs.project }}
+        IN_INSTALL_GCLOUD: ${{ inputs.install-gcloud }}
+      run: |
+        command -v node >/dev/null || { echo "::error::setup-gcp-oidc needs node on PATH"; exit 1; }
+        env \
+          "INPUT_WORKLOAD-IDENTITY-PROVIDER=$IN_WORKLOAD_IDENTITY_PROVIDER" \
+          "INPUT_SERVICE-ACCOUNT=$IN_SERVICE_ACCOUNT" \
+          "INPUT_AUDIENCE=$IN_AUDIENCE" \
+          "INPUT_SUBJECT-KEYS=$IN_SUBJECT_KEYS" \
+          "INPUT_PROJECT=$IN_PROJECT" \
+          "INPUT_INSTALL-GCLOUD=$IN_INSTALL_GCLOUD" \
+          node "$GITHUB_ACTION_PATH/dist/index.js"
